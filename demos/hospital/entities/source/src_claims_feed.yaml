@@ -1,0 +1,248 @@
+entity:
+  entity_id: src_claims_feed
+  name: Insurance Claims Feed
+  description: |
+    Insurance claims data from payers including professional
+    and institutional claims. Maps to FHIR Claim resource.
+  stereotype: src_external
+  layer: source
+
+  source_system:
+    name: ClaimsProcessor
+    type: sftp
+    connection: CLAIMS_SFTP
+    schedule: "daily 04:00 UTC"
+    format: x12_837
+
+  fhir_mapping:
+    resources: [Claim, ExplanationOfBenefit]
+    version: R4
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_id, subscriber_id, provider_npi]
+
+  tags: [phi, financial]
+
+  attributes:
+    - name: claim_id
+      data_type: string
+      length: 30
+      description: Unique claim identifier
+      business_key: true
+
+    - name: claim_type
+      data_type: string
+      length: 20
+      description: Claim type (professional, institutional, dental, pharmacy)
+
+    - name: patient_id
+      data_type: string
+      length: 36
+      description: Patient identifier
+      tags: [phi]
+
+    - name: subscriber_id
+      data_type: string
+      length: 30
+      description: Insurance subscriber ID
+      tags: [phi]
+
+    - name: member_id
+      data_type: string
+      length: 30
+      nullable: true
+      description: Member ID on insurance card
+      tags: [phi]
+
+    - name: payer_id
+      data_type: string
+      length: 20
+      description: Payer/Insurance company ID
+
+    - name: payer_name
+      data_type: string
+      length: 100
+      description: Payer name
+
+    - name: plan_id
+      data_type: string
+      length: 30
+      nullable: true
+      description: Insurance plan identifier
+
+    - name: group_number
+      data_type: string
+      length: 30
+      nullable: true
+      description: Group number
+
+    - name: service_date_from
+      data_type: date
+      description: Service start date
+
+    - name: service_date_to
+      data_type: date
+      description: Service end date
+
+    - name: admission_date
+      data_type: date
+      nullable: true
+      description: Admission date (institutional claims)
+
+    - name: discharge_date
+      data_type: date
+      nullable: true
+      description: Discharge date (institutional claims)
+
+    - name: billing_provider_npi
+      data_type: string
+      length: 10
+      description: Billing provider NPI
+      tags: [phi]
+
+    - name: rendering_provider_npi
+      data_type: string
+      length: 10
+      nullable: true
+      description: Rendering provider NPI
+      tags: [phi]
+
+    - name: facility_npi
+      data_type: string
+      length: 10
+      nullable: true
+      description: Service facility NPI
+
+    - name: place_of_service
+      data_type: string
+      length: 2
+      description: Place of service code
+
+    - name: diagnosis_code_1
+      data_type: string
+      length: 10
+      description: Primary diagnosis (ICD-10)
+      tags: [clinical]
+
+    - name: diagnosis_code_2
+      data_type: string
+      length: 10
+      nullable: true
+      description: Secondary diagnosis
+      tags: [clinical]
+
+    - name: diagnosis_code_3
+      data_type: string
+      length: 10
+      nullable: true
+      description: Tertiary diagnosis
+      tags: [clinical]
+
+    - name: procedure_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Primary procedure code (CPT/HCPCS)
+      tags: [clinical]
+
+    - name: drg_code
+      data_type: string
+      length: 5
+      nullable: true
+      description: DRG code (institutional)
+
+    - name: revenue_code
+      data_type: string
+      length: 4
+      nullable: true
+      description: Revenue code (institutional)
+
+    - name: units
+      data_type: decimal
+      precision: 10
+      scale: 2
+      description: Service units
+
+    - name: billed_amount
+      data_type: decimal
+      precision: 12
+      scale: 2
+      description: Billed/charged amount
+      tags: [financial]
+
+    - name: allowed_amount
+      data_type: decimal
+      precision: 12
+      scale: 2
+      nullable: true
+      description: Allowed amount
+      tags: [financial]
+
+    - name: paid_amount
+      data_type: decimal
+      precision: 12
+      scale: 2
+      nullable: true
+      description: Paid amount
+      tags: [financial]
+
+    - name: patient_responsibility
+      data_type: decimal
+      precision: 12
+      scale: 2
+      nullable: true
+      description: Patient responsibility (copay + deductible + coinsurance)
+      tags: [financial]
+
+    - name: claim_status
+      data_type: string
+      length: 20
+      description: Claim status (submitted, accepted, rejected, paid, denied)
+
+    - name: adjudication_date
+      data_type: date
+      nullable: true
+      description: Adjudication/payment date
+
+    - name: denial_reason_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Denial reason code
+
+    - name: remittance_id
+      data_type: string
+      length: 30
+      nullable: true
+      description: ERA/Remittance advice ID
+
+    - name: received_date
+      data_type: date
+      description: Claim received date
+
+    - name: extract_ts
+      data_type: timestamp
+      description: ETL extraction timestamp
+
+  quality_rules:
+    - rule_id: claim_001
+      name: Valid Claim Type
+      expression: "claim_type IN ('professional', 'institutional', 'dental', 'pharmacy')"
+      severity: error
+
+    - rule_id: claim_002
+      name: Valid NPI Format
+      expression: "billing_provider_npi ~ '^[0-9]{10}$'"
+      severity: error
+
+    - rule_id: claim_003
+      name: Service Date Order
+      expression: "service_date_to >= service_date_from"
+      severity: error
+
+    - rule_id: claim_004
+      name: Valid Amounts
+      expression: "billed_amount >= 0 AND (paid_amount IS NULL OR paid_amount >= 0)"
+      severity: error

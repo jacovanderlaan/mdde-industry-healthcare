@@ -1,0 +1,95 @@
+entity:
+  name: medication
+  comment: |
+    Medication order and administration entity
+    for patient prescriptions and dispensing.
+attributes:
+  - name: medication_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: medication_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Medication order ID
+  - name: patient_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Patient ID
+  - name: encounter_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Related encounter ID
+  - name: medication_code
+    data_type: VA20(20)
+    mandatory: true
+    comment: Medication code (NDC/RxNorm)
+  - name: medication_name
+    data_type: VA200(200)
+    mandatory: true
+    comment: Medication name
+  - name: medication_category
+    data_type: VA50(50)
+    mandatory: false
+    comment: Category (Prescription, OTC, Controlled)
+  - name: dosage
+    data_type: VA50(50)
+    mandatory: false
+    comment: Dosage amount
+  - name: dosage_unit
+    data_type: VA20(20)
+    mandatory: false
+    comment: Dosage unit (mg, ml, etc.)
+  - name: route
+    data_type: VA30(30)
+    mandatory: false
+    comment: Route (Oral, IV, IM, Topical)
+  - name: frequency
+    data_type: VA50(50)
+    mandatory: false
+    comment: Frequency (BID, TID, QID, PRN)
+  - name: duration_days
+    data_type: INT
+    mandatory: false
+    comment: Duration in days
+  - name: quantity
+    data_type: DEC(10,2)
+    mandatory: false
+    comment: Quantity prescribed
+  - name: refills_authorized
+    data_type: INT
+    mandatory: false
+    comment: Number of refills
+  - name: refills_remaining
+    data_type: INT
+    mandatory: false
+    comment: Refills remaining
+  - name: start_date
+    data_type: D
+    mandatory: false
+    comment: Start date
+  - name: end_date
+    data_type: D
+    mandatory: false
+    comment: End date
+  - name: prescriber_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Prescribing provider ID
+  - name: pharmacy_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Dispensing pharmacy
+  - name: medication_status
+    data_type: VA30(30)
+    mandatory: true
+    comment: Status (Active, Completed, Discontinued, On Hold)
+  - name: is_controlled
+    data_type: B
+    mandatory: false
+    comment: Controlled substance flag
+  - name: instructions
+    data_type: VA500(500)
+    mandatory: false
+    comment: Patient instructions

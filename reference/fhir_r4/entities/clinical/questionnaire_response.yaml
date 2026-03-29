@@ -1,0 +1,140 @@
+# FHIR R4: QuestionnaireResponse Resource
+# https://hl7.org/fhir/R4/questionnaireresponse.html
+
+entity:
+  entity_id: fhir_questionnaire_response
+  name: QuestionnaireResponse
+  description: |
+    A structured set of questions and their answers.
+    Used for patient-reported outcomes, intake forms, assessments.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: QuestionnaireResponse
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: based_on_id
+      data_type: string
+      length: 64
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+
+    - name: questionnaire_url
+      data_type: string
+      length: 255
+      not_null: true
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: in-progress | completed | amended | entered-in-error | stopped
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: authored
+      data_type: timestamp
+
+    - name: author_id
+      data_type: string
+      length: 64
+
+    - name: source_id
+      data_type: string
+      length: 64
+      description: Person who answered questions
+
+    - name: item_link_id
+      data_type: string
+      length: 100
+
+    - name: item_definition
+      data_type: string
+      length: 255
+
+    - name: item_text
+      data_type: string
+      length: 1000
+
+    - name: item_answer_value_boolean
+      data_type: boolean
+
+    - name: item_answer_value_decimal
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: item_answer_value_integer
+      data_type: integer
+
+    - name: item_answer_value_date
+      data_type: date
+
+    - name: item_answer_value_date_time
+      data_type: timestamp
+
+    - name: item_answer_value_time
+      data_type: time
+
+    - name: item_answer_value_string
+      data_type: string
+      length: 2000
+
+    - name: item_answer_value_uri
+      data_type: string
+      length: 255
+
+    - name: item_answer_value_coding_code
+      data_type: string
+      length: 50
+
+    - name: item_answer_value_coding_display
+      data_type: string
+      length: 255
+
+    - name: item_answer_value_quantity_value
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: item_answer_value_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: item_answer_value_reference_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"

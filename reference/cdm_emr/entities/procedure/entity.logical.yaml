@@ -1,0 +1,91 @@
+entity:
+  name: procedure
+  comment: |
+    Medical procedure entity for surgeries,
+    treatments, and clinical interventions.
+attributes:
+  - name: procedure_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: procedure_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Procedure ID
+  - name: patient_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Patient ID
+  - name: encounter_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Related encounter ID
+  - name: procedure_code
+    data_type: VA20(20)
+    mandatory: true
+    comment: CPT/HCPCS procedure code
+  - name: procedure_description
+    data_type: VA500(500)
+    mandatory: true
+    comment: Procedure description
+  - name: procedure_type
+    data_type: VA50(50)
+    mandatory: false
+    comment: Type (Surgical, Diagnostic, Therapeutic)
+  - name: coding_system
+    data_type: VA20(20)
+    mandatory: false
+    comment: Coding system (CPT, ICD-10-PCS, HCPCS)
+  - name: procedure_status
+    data_type: VA30(30)
+    mandatory: true
+    comment: Status (Scheduled, In Progress, Completed, Cancelled)
+  - name: scheduled_date
+    data_type: TS
+    mandatory: false
+    comment: Scheduled datetime
+  - name: start_datetime
+    data_type: TS
+    mandatory: false
+    comment: Procedure start time
+  - name: end_datetime
+    data_type: TS
+    mandatory: false
+    comment: Procedure end time
+  - name: duration_minutes
+    data_type: INT
+    mandatory: false
+    comment: Duration in minutes
+  - name: performing_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Performing provider
+  - name: assistant_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Assistant provider
+  - name: anesthesia_type
+    data_type: VA30(30)
+    mandatory: false
+    comment: Anesthesia type
+  - name: body_site
+    data_type: VA100(100)
+    mandatory: false
+    comment: Body site/laterality
+  - name: facility_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Procedure facility
+  - name: operating_room
+    data_type: VA20(20)
+    mandatory: false
+    comment: Operating room
+  - name: complications
+    data_type: VA500(500)
+    mandatory: false
+    comment: Complications if any
+  - name: outcome
+    data_type: VA100(100)
+    mandatory: false
+    comment: Procedure outcome

@@ -1,0 +1,275 @@
+entity:
+  entity_id: fact_encounter
+  name: Encounter Fact
+  description: |
+    Fact table for patient encounters/visits. Maps to FHIR
+    Encounter resource. Grain: one row per encounter.
+  stereotype: dim_fact
+  layer: business
+
+  dimensional:
+    fact_type: transaction
+    grain: encounter
+    measures:
+      - length_of_stay_hours
+      - total_charges
+      - total_cost
+
+  fhir_mapping:
+    resource: Encounter
+
+  compliance:
+    hipaa:
+      scope: true
+      limited_dataset_eligible: true
+
+  tags: [phi, clinical]
+
+  lineage:
+    sources:
+      - entity_id: src_hl7_messages
+        mapping_type: derive
+      - entity_id: src_ehr_system
+        mapping_type: derive
+
+  attributes:
+    - name: encounter_sk
+      data_type: bigint
+      description: Encounter surrogate key
+      primary_key: true
+      auto_increment: true
+
+    - name: encounter_id
+      data_type: string
+      length: 50
+      description: Encounter natural key
+      not_null: true
+      tags: [phi]
+
+    # Dimension keys
+    - name: patient_sk
+      data_type: bigint
+      description: Patient dimension key
+      not_null: true
+      foreign_key:
+        references: dim_patient_hc.patient_sk
+
+    - name: provider_sk
+      data_type: bigint
+      nullable: true
+      description: Attending provider key
+      foreign_key:
+        references: dim_provider.provider_sk
+
+    - name: facility_sk
+      data_type: bigint
+      nullable: true
+      description: Facility/location key
+      foreign_key:
+        references: dim_facility.facility_sk
+
+    - name: admit_date_sk
+      data_type: integer
+      description: Admission date key
+      foreign_key:
+        references: dim_date.date_sk
+
+    - name: discharge_date_sk
+      data_type: integer
+      nullable: true
+      description: Discharge date key
+      foreign_key:
+        references: dim_date.date_sk
+
+    # Encounter classification
+    - name: encounter_class
+      data_type: string
+      length: 20
+      description: Encounter class (inpatient, outpatient, emergency, etc.)
+      fhir_path: Encounter.class
+
+    - name: encounter_type
+      data_type: string
+      length: 50
+      nullable: true
+      description: Encounter type code
+      fhir_path: Encounter.type
+
+    - name: encounter_status
+      data_type: string
+      length: 20
+      description: Status (planned, arrived, in-progress, finished, cancelled)
+      fhir_path: Encounter.status
+
+    - name: priority
+      data_type: string
+      length: 20
+      nullable: true
+      description: Priority (routine, urgent, emergency)
+
+    - name: admission_type
+      data_type: string
+      length: 20
+      nullable: true
+      description: Admission type code
+
+    - name: admission_source
+      data_type: string
+      length: 50
+      nullable: true
+      description: Admission source (physician referral, emergency, etc.)
+
+    - name: discharge_disposition
+      data_type: string
+      length: 50
+      nullable: true
+      description: Discharge disposition code
+
+    # Timestamps
+    - name: admit_datetime
+      data_type: timestamp
+      description: Admission date/time
+
+    - name: discharge_datetime
+      data_type: timestamp
+      nullable: true
+      description: Discharge date/time
+
+    # Measures
+    - name: length_of_stay_hours
+      data_type: decimal
+      precision: 10
+      scale: 2
+      nullable: true
+      description: Length of stay in hours
+      measure: true
+      aggregation: avg
+      derived:
+        expression: "DATEDIFF(hour, admit_datetime, COALESCE(discharge_datetime, CURRENT_TIMESTAMP))"
+
+    - name: length_of_stay_days
+      data_type: integer
+      nullable: true
+      description: Length of stay in days
+      derived:
+        expression: "CEILING(length_of_stay_hours / 24.0)"
+
+    - name: total_charges
+      data_type: decimal
+      precision: 12
+      scale: 2
+      nullable: true
+      description: Total charges
+      measure: true
+      aggregation: sum
+
+    - name: total_cost
+      data_type: decimal
+      precision: 12
+      scale: 2
+      nullable: true
+      description: Total cost
+      measure: true
+      aggregation: sum
+
+    # Clinical indicators
+    - name: primary_diagnosis_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Primary ICD-10 diagnosis code
+      tags: [clinical]
+
+    - name: primary_diagnosis_desc
+      data_type: string
+      length: 200
+      nullable: true
+      description: Primary diagnosis description
+
+    - name: drg_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: DRG code (for inpatient)
+
+    - name: diagnosis_count
+      data_type: integer
+      default: 0
+      description: Number of diagnoses
+
+    - name: procedure_count
+      data_type: integer
+      default: 0
+      description: Number of procedures
+
+    - name: readmission_flag
+      data_type: boolean
+      default: false
+      description: 30-day readmission indicator
+      tags: [clinical]
+
+    - name: ed_to_admit_flag
+      data_type: boolean
+      default: false
+      description: ED visit converted to admission
+
+    # Service line
+    - name: service_line
+      data_type: string
+      length: 50
+      nullable: true
+      description: Service line (Cardiology, Oncology, etc.)
+
+    - name: department
+      data_type: string
+      length: 50
+      nullable: true
+      description: Department
+
+    # Metadata
+    - name: source_system
+      data_type: string
+      length: 20
+      description: Source system identifier
+
+    - name: etl_batch_id
+      data_type: bigint
+      description: ETL batch identifier
+
+    - name: load_timestamp
+      data_type: timestamp
+      description: ETL load timestamp
+
+  indexes:
+    - name: idx_fact_enc_patient
+      columns: [patient_sk, admit_date_sk]
+
+    - name: idx_fact_enc_date
+      columns: [admit_date_sk]
+
+    - name: idx_fact_enc_provider
+      columns: [provider_sk, admit_date_sk]
+
+    - name: idx_fact_enc_dx
+      columns: [primary_diagnosis_code]
+
+  partitioning:
+    strategy: range
+    column: admit_date_sk
+    interval: monthly
+
+  quality_rules:
+    - rule_id: fact_enc_001
+      name: Valid Encounter Class
+      expression: "encounter_class IN ('inpatient', 'outpatient', 'emergency', 'ambulatory', 'observation')"
+      severity: error
+
+    - rule_id: fact_enc_002
+      name: Valid Status
+      expression: "encounter_status IN ('planned', 'arrived', 'triaged', 'in-progress', 'onleave', 'finished', 'cancelled')"
+      severity: error
+
+    - rule_id: fact_enc_003
+      name: Discharge After Admit
+      expression: "discharge_datetime IS NULL OR discharge_datetime >= admit_datetime"
+      severity: error

@@ -1,0 +1,228 @@
+entity:
+  entity_id: src_lab_results
+  name: Laboratory Results Feed
+  description: |
+    Laboratory test results from the LIS (Laboratory Information System).
+    Maps to FHIR Observation and DiagnosticReport resources.
+  stereotype: src_external
+  layer: source
+
+  source_system:
+    name: LabCorp_LIS
+    type: hl7
+    connection: LAB_HL7
+    schedule: "real-time"
+    format: hl7_oru
+
+  fhir_mapping:
+    resources: [Observation, DiagnosticReport]
+    version: R4
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_id, mrn, result_value]
+
+  tags: [phi, clinical]
+
+  attributes:
+    - name: result_id
+      data_type: string
+      length: 36
+      description: Unique result identifier
+      business_key: true
+
+    - name: order_id
+      data_type: string
+      length: 36
+      description: Lab order identifier
+
+    - name: accession_number
+      data_type: string
+      length: 20
+      description: Lab accession number
+
+    - name: patient_id
+      data_type: string
+      length: 36
+      description: Patient identifier
+      tags: [phi]
+
+    - name: mrn
+      data_type: string
+      length: 20
+      description: Medical record number
+      tags: [phi]
+
+    - name: encounter_id
+      data_type: string
+      length: 36
+      nullable: true
+      description: Associated encounter
+
+    - name: ordering_provider_id
+      data_type: string
+      length: 20
+      description: Ordering provider ID
+
+    - name: ordering_provider_name
+      data_type: string
+      length: 100
+      nullable: true
+      description: Ordering provider name
+
+    - name: test_code
+      data_type: string
+      length: 20
+      description: Test code (local or LOINC)
+      tags: [clinical]
+
+    - name: loinc_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: LOINC code
+      tags: [clinical]
+
+    - name: test_name
+      data_type: string
+      length: 200
+      description: Test name/description
+
+    - name: test_category
+      data_type: string
+      length: 50
+      nullable: true
+      description: Test category (Chemistry, Hematology, Microbiology, etc.)
+
+    - name: specimen_type
+      data_type: string
+      length: 50
+      nullable: true
+      description: Specimen type (Blood, Urine, CSF, etc.)
+
+    - name: specimen_collected_ts
+      data_type: timestamp
+      description: Specimen collection timestamp
+
+    - name: specimen_received_ts
+      data_type: timestamp
+      nullable: true
+      description: Specimen received timestamp
+
+    - name: result_ts
+      data_type: timestamp
+      description: Result timestamp
+
+    - name: result_value
+      data_type: string
+      length: 500
+      description: Result value (numeric or text)
+      tags: [phi, clinical]
+
+    - name: result_value_numeric
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Numeric result value
+
+    - name: result_units
+      data_type: string
+      length: 30
+      nullable: true
+      description: Result units (UCUM preferred)
+
+    - name: reference_range_low
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Reference range low
+
+    - name: reference_range_high
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Reference range high
+
+    - name: reference_range_text
+      data_type: string
+      length: 100
+      nullable: true
+      description: Reference range text (for non-numeric)
+
+    - name: abnormal_flag
+      data_type: string
+      length: 5
+      nullable: true
+      description: Abnormal flag (H, L, HH, LL, A, AA, N)
+      tags: [clinical]
+
+    - name: critical_flag
+      data_type: boolean
+      default: false
+      description: Critical/panic value indicator
+      tags: [clinical]
+
+    - name: result_status
+      data_type: string
+      length: 20
+      description: Result status (preliminary, final, corrected, cancelled)
+
+    - name: performing_lab
+      data_type: string
+      length: 100
+      nullable: true
+      description: Performing laboratory name
+
+    - name: performing_lab_clia
+      data_type: string
+      length: 20
+      nullable: true
+      description: CLIA number of performing lab
+
+    - name: technologist_id
+      data_type: string
+      length: 20
+      nullable: true
+      description: Performing technologist ID
+
+    - name: verified_by
+      data_type: string
+      length: 50
+      nullable: true
+      description: Verified/reviewed by
+
+    - name: verified_ts
+      data_type: timestamp
+      nullable: true
+      description: Verification timestamp
+
+    - name: comments
+      data_type: string
+      length: 2000
+      nullable: true
+      description: Result comments/notes
+      tags: [clinical]
+
+    - name: extract_ts
+      data_type: timestamp
+      description: ETL extraction timestamp
+
+  quality_rules:
+    - rule_id: lab_001
+      name: Valid Result Status
+      expression: "result_status IN ('registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error')"
+      severity: error
+
+    - rule_id: lab_002
+      name: Valid Abnormal Flag
+      expression: "abnormal_flag IS NULL OR abnormal_flag IN ('H', 'L', 'HH', 'LL', 'A', 'AA', 'N', '>',' <')"
+      severity: warning
+
+    - rule_id: lab_003
+      name: Result Required for Final
+      expression: "result_status != 'final' OR result_value IS NOT NULL"
+      severity: error

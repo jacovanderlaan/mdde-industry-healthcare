@@ -1,0 +1,211 @@
+entity:
+  entity_id: sat_provider_details
+  name: Provider Details Satellite
+  description: |
+    Data Vault satellite containing provider demographic and professional details.
+    Maps to FHIR Practitioner qualification and contact elements.
+  stereotype: dv_satellite
+  layer: integration
+
+  data_vault:
+    satellite_type: standard
+    parent_hub: hub_provider
+    hash_diff_columns:
+      - provider_type
+      - specialty_code
+      - first_name
+      - last_name
+      - credentials
+      - phone
+      - email
+      - address_line1
+      - city
+      - state
+      - postal_code
+
+  fhir_mapping:
+    resource: Practitioner
+    version: R4
+    elements:
+      - name
+      - telecom
+      - address
+      - qualification
+
+  lineage:
+    sources:
+      - entity_id: src_ehr_system
+        mapping_type: derive
+
+  attributes:
+    - name: provider_hash_key
+      data_type: string
+      length: 64
+      description: Parent hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_provider.provider_hash_key
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: load_end_ts
+      data_type: timestamp
+      nullable: true
+      description: Record end timestamp (null = current)
+
+    - name: hash_diff
+      data_type: string
+      length: 64
+      description: Hash of tracked columns for change detection
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+
+    # Provider classification
+    - name: provider_type
+      data_type: string
+      length: 30
+      description: Provider type (physician, nurse, facility, etc.)
+
+    - name: specialty_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Primary specialty code
+
+    - name: specialty_description
+      data_type: string
+      length: 100
+      nullable: true
+      description: Specialty description
+
+    - name: taxonomy_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Healthcare provider taxonomy code
+
+    # Name
+    - name: first_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: First name
+
+    - name: middle_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: Middle name
+
+    - name: last_name
+      data_type: string
+      length: 50
+      description: Last name
+
+    - name: credentials
+      data_type: string
+      length: 30
+      nullable: true
+      description: Professional credentials (MD, DO, NP, RN, etc.)
+
+    - name: title
+      data_type: string
+      length: 20
+      nullable: true
+      description: Professional title
+
+    # Contact
+    - name: phone
+      data_type: string
+      length: 20
+      nullable: true
+      description: Primary phone number
+
+    - name: fax
+      data_type: string
+      length: 20
+      nullable: true
+      description: Fax number
+
+    - name: email
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email address
+
+    # Address
+    - name: address_line1
+      data_type: string
+      length: 100
+      nullable: true
+      description: Address line 1
+
+    - name: address_line2
+      data_type: string
+      length: 100
+      nullable: true
+      description: Address line 2
+
+    - name: city
+      data_type: string
+      length: 50
+      nullable: true
+      description: City
+
+    - name: state
+      data_type: string
+      length: 2
+      nullable: true
+      description: State code
+
+    - name: postal_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Postal/ZIP code
+
+    # Status
+    - name: active_indicator
+      data_type: boolean
+      default: true
+      description: Active provider indicator
+
+    - name: license_state
+      data_type: string
+      length: 2
+      nullable: true
+      description: Primary license state
+
+    - name: license_number
+      data_type: string
+      length: 30
+      nullable: true
+      description: License number
+
+    - name: license_expiry_date
+      data_type: date
+      nullable: true
+      description: License expiration date
+
+    - name: dea_number
+      data_type: string
+      length: 20
+      nullable: true
+      description: DEA registration number
+
+  quality_rules:
+    - rule_id: sat_prov_001
+      name: Required Last Name
+      expression: "last_name IS NOT NULL"
+      severity: error
+
+    - rule_id: sat_prov_002
+      name: Valid State Code
+      expression: "state IS NULL OR LENGTH(state) = 2"
+      severity: warning

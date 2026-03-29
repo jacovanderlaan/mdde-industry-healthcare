@@ -1,0 +1,202 @@
+# FHIR R4: FamilyMemberHistory Resource
+# https://hl7.org/fhir/R4/familymemberhistory.html
+
+entity:
+  entity_id: fhir_family_member_history
+  name: FamilyMemberHistory
+  description: |
+    Significant health conditions for a person related to the patient
+    relevant in the context of care for the patient.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: FamilyMemberHistory
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: instantiates_canonical
+      data_type: string
+      length: 255
+
+    - name: instantiates_uri
+      data_type: string
+      length: 255
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: partial | completed | entered-in-error | health-unknown
+
+    - name: data_absent_reason_code
+      data_type: string
+      length: 50
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: date
+      data_type: timestamp
+
+    - name: name
+      data_type: string
+      length: 100
+
+    - name: relationship_code
+      data_type: string
+      length: 50
+      not_null: true
+
+    - name: relationship_display
+      data_type: string
+      length: 100
+
+    - name: sex_code
+      data_type: string
+      length: 20
+
+    - name: born_period_start
+      data_type: date
+
+    - name: born_period_end
+      data_type: date
+
+    - name: born_date
+      data_type: date
+
+    - name: born_string
+      data_type: string
+      length: 100
+
+    - name: age_age_value
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: age_age_unit
+      data_type: string
+      length: 20
+
+    - name: age_range_low
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: age_range_high
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: age_string
+      data_type: string
+      length: 100
+
+    - name: estimated_age
+      data_type: boolean
+
+    - name: deceased_boolean
+      data_type: boolean
+
+    - name: deceased_age_value
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: deceased_age_unit
+      data_type: string
+      length: 20
+
+    - name: deceased_range_low
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: deceased_range_high
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: deceased_date
+      data_type: date
+
+    - name: deceased_string
+      data_type: string
+      length: 100
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: condition_code
+      data_type: string
+      length: 50
+
+    - name: condition_display
+      data_type: string
+      length: 255
+
+    - name: condition_outcome_code
+      data_type: string
+      length: 50
+
+    - name: condition_contributed_to_death
+      data_type: boolean
+
+    - name: condition_onset_age_value
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: condition_onset_range_low
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: condition_onset_range_high
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: condition_onset_period_start
+      data_type: date
+
+    - name: condition_onset_period_end
+      data_type: date
+
+    - name: condition_onset_string
+      data_type: string
+      length: 100
+
+    - name: condition_note
+      data_type: string
+      length: 1000
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"

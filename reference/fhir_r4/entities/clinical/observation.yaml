@@ -1,0 +1,243 @@
+# FHIR R4: Observation Resource
+# https://hl7.org/fhir/R4/observation.html
+
+entity:
+  entity_id: fhir_observation
+  name: Observation
+  description: |
+    Measurements and simple assertions made about a patient, device or
+    other subject. Core resource for vital signs, lab results, social
+    history, and other clinical findings.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Observation
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 100
+
+    - name: based_on_service_request_id
+      data_type: string
+      length: 64
+
+    - name: part_of_procedure_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: registered | preliminary | final | amended | corrected | cancelled | entered-in-error | unknown
+
+    - name: category_code
+      data_type: string
+      length: 50
+      description: vital-signs | laboratory | imaging | social-history | survey | etc.
+
+    - name: code_system
+      data_type: string
+      length: 100
+      description: Code system (LOINC, SNOMED)
+
+    - name: code_code
+      data_type: string
+      length: 20
+      not_null: true
+      description: Observation code
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: focus_id
+      data_type: string
+      length: 64
+      description: What observation is about (if not patient)
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: effective_date_time
+      data_type: timestamp
+      description: When observation was made
+
+    - name: effective_period_start
+      data_type: timestamp
+
+    - name: effective_period_end
+      data_type: timestamp
+
+    - name: effective_timing
+      data_type: string
+      length: 500
+      description: JSON timing specification
+
+    - name: effective_instant
+      data_type: timestamp
+
+    - name: issued
+      data_type: timestamp
+      description: Date/time result was issued
+
+    - name: performer_id
+      data_type: string
+      length: 64
+
+    - name: value_quantity_value
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: value_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: value_quantity_system
+      data_type: string
+      length: 100
+
+    - name: value_quantity_code
+      data_type: string
+      length: 20
+
+    - name: value_codeable_concept_code
+      data_type: string
+      length: 50
+
+    - name: value_codeable_concept_display
+      data_type: string
+      length: 255
+
+    - name: value_string
+      data_type: string
+      length: 2000
+
+    - name: value_boolean
+      data_type: boolean
+
+    - name: value_integer
+      data_type: integer
+
+    - name: value_range_low
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: value_range_high
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: value_ratio_numerator
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: value_ratio_denominator
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: value_time
+      data_type: time
+
+    - name: value_date_time
+      data_type: timestamp
+
+    - name: data_absent_reason_code
+      data_type: string
+      length: 50
+
+    - name: interpretation_code
+      data_type: string
+      length: 20
+      description: Interpretation (H, L, A, etc.)
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: body_site_code
+      data_type: string
+      length: 50
+
+    - name: method_code
+      data_type: string
+      length: 50
+
+    - name: specimen_id
+      data_type: string
+      length: 64
+
+    - name: device_id
+      data_type: string
+      length: 64
+
+    - name: reference_range_low
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: reference_range_high
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: reference_range_type_code
+      data_type: string
+      length: 50
+
+    - name: reference_range_applies_to
+      data_type: string
+      length: 255
+
+    - name: reference_range_age_low
+      data_type: integer
+
+    - name: reference_range_age_high
+      data_type: integer
+
+    - name: reference_range_text
+      data_type: string
+      length: 500
+
+    - name: has_member_observation_id
+      data_type: string
+      length: 64
+      description: Reference to component observations
+
+    - name: derived_from_observation_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"

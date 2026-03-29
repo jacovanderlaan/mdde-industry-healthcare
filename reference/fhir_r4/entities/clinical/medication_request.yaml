@@ -1,0 +1,278 @@
+# FHIR R4: MedicationRequest Resource
+# https://hl7.org/fhir/R4/medicationrequest.html
+
+entity:
+  entity_id: fhir_medication_request
+  name: MedicationRequest
+  description: |
+    An order or request for both supply of the medication and the
+    instructions for administration of the medication to a patient.
+    Also known as prescription or medication order.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: MedicationRequest
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 100
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | on-hold | cancelled | completed | entered-in-error | stopped | draft | unknown
+
+    - name: status_reason_code
+      data_type: string
+      length: 50
+
+    - name: intent
+      data_type: string
+      length: 20
+      not_null: true
+      description: proposal | plan | order | original-order | reflex-order | filler-order | instance-order | option
+
+    - name: category_code
+      data_type: string
+      length: 50
+      description: inpatient | outpatient | community | discharge
+
+    - name: priority
+      data_type: string
+      length: 20
+      description: routine | urgent | asap | stat
+
+    - name: do_not_perform
+      data_type: boolean
+      description: True if request is prohibiting action
+
+    - name: reported_boolean
+      data_type: boolean
+
+    - name: reported_reference_id
+      data_type: string
+      length: 64
+
+    - name: medication_codeable_concept_code
+      data_type: string
+      length: 50
+      description: Medication code (RxNorm, NDC)
+
+    - name: medication_codeable_concept_display
+      data_type: string
+      length: 255
+
+    - name: medication_reference_id
+      data_type: string
+      length: 64
+      description: Reference to Medication resource
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: supporting_information_id
+      data_type: string
+      length: 64
+
+    - name: authored_on
+      data_type: timestamp
+
+    - name: requester_id
+      data_type: string
+      length: 64
+      description: Prescriber
+
+    - name: performer_id
+      data_type: string
+      length: 64
+
+    - name: performer_type_code
+      data_type: string
+      length: 50
+
+    - name: recorder_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: instantiates_canonical
+      data_type: string
+      length: 255
+
+    - name: instantiates_uri
+      data_type: string
+      length: 255
+
+    - name: based_on_id
+      data_type: string
+      length: 64
+
+    - name: group_identifier
+      data_type: string
+      length: 64
+
+    - name: course_of_therapy_type_code
+      data_type: string
+      length: 50
+
+    - name: insurance_id
+      data_type: string
+      length: 64
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: dosage_instruction_text
+      data_type: string
+      length: 500
+
+    - name: dosage_instruction_timing
+      data_type: string
+      length: 500
+      description: JSON timing specification
+
+    - name: dosage_instruction_as_needed_boolean
+      data_type: boolean
+
+    - name: dosage_instruction_as_needed_code
+      data_type: string
+      length: 50
+
+    - name: dosage_instruction_site_code
+      data_type: string
+      length: 50
+
+    - name: dosage_instruction_route_code
+      data_type: string
+      length: 50
+
+    - name: dosage_instruction_method_code
+      data_type: string
+      length: 50
+
+    - name: dosage_instruction_dose_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_instruction_dose_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: dosage_instruction_max_dose_per_period
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_instruction_max_dose_per_administration
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_instruction_max_dose_per_lifetime
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dispense_request_initial_fill_quantity
+      data_type: decimal
+      precision: 10
+      scale: 2
+
+    - name: dispense_request_initial_fill_duration
+      data_type: integer
+
+    - name: dispense_request_dispense_interval
+      data_type: integer
+
+    - name: dispense_request_validity_period_start
+      data_type: date
+
+    - name: dispense_request_validity_period_end
+      data_type: date
+
+    - name: dispense_request_number_of_repeats_allowed
+      data_type: integer
+
+    - name: dispense_request_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 2
+
+    - name: dispense_request_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: dispense_request_expected_supply_duration
+      data_type: integer
+
+    - name: dispense_request_performer_id
+      data_type: string
+      length: 64
+
+    - name: substitution_allowed_boolean
+      data_type: boolean
+
+    - name: substitution_allowed_code
+      data_type: string
+      length: 50
+
+    - name: substitution_reason_code
+      data_type: string
+      length: 50
+
+    - name: prior_prescription_id
+      data_type: string
+      length: 64
+
+    - name: detected_issue_id
+      data_type: string
+      length: 64
+
+    - name: event_history_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: requester_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"

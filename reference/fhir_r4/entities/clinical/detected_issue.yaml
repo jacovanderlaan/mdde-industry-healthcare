@@ -1,0 +1,105 @@
+# FHIR R4: DetectedIssue Resource
+# https://hl7.org/fhir/R4/detectedissue.html
+
+entity:
+  entity_id: fhir_detected_issue
+  name: DetectedIssue
+  description: |
+    Indicates an actual or potential clinical issue with or between one
+    or more active or proposed clinical actions for a patient. E.g.,
+    drug-drug interaction, duplicate therapy, etc.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: DetectedIssue
+    maturity_level: 2
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: registered | preliminary | final | amended | corrected | cancelled | entered-in-error | unknown
+
+    - name: code_code
+      data_type: string
+      length: 50
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: severity
+      data_type: string
+      length: 20
+      description: high | moderate | low
+
+    - name: patient_id
+      data_type: string
+      length: 64
+
+    - name: identified_date_time
+      data_type: timestamp
+
+    - name: identified_period_start
+      data_type: timestamp
+
+    - name: identified_period_end
+      data_type: timestamp
+
+    - name: author_id
+      data_type: string
+      length: 64
+
+    - name: implicated_id
+      data_type: string
+      length: 64
+      description: Problem resource (MedicationRequest, etc.)
+
+    - name: evidence_code
+      data_type: string
+      length: 50
+
+    - name: evidence_detail_id
+      data_type: string
+      length: 64
+
+    - name: detail
+      data_type: string
+      length: 2000
+
+    - name: reference
+      data_type: string
+      length: 255
+      description: URL to relevant literature
+
+    - name: mitigation_action_code
+      data_type: string
+      length: 50
+
+    - name: mitigation_date
+      data_type: timestamp
+
+    - name: mitigation_author_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"

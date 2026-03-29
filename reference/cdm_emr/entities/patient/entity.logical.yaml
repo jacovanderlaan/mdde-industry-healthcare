@@ -1,0 +1,128 @@
+entity:
+  name: patient
+  comment: |
+    Patient demographics and identifiers aligned with FHIR R4 Patient resource.
+    Core entity for healthcare data models representing individuals receiving care.
+  fhir_resource: Patient
+attributes:
+  - name: patient_id
+    data_type: VA36(36)
+    mandatory: true
+    primary_key: true
+    comment: Unique patient identifier (MRN or system-assigned)
+  - name: mrn
+    data_type: VA20(20)
+    mandatory: false
+    comment: Medical Record Number
+  - name: ssn
+    data_type: VA11(11)
+    mandatory: false
+    pii: true
+    comment: Social Security Number
+  - name: first_name
+    data_type: VA50(50)
+    mandatory: true
+    pii: true
+    comment: Patient first/given name
+  - name: middle_name
+    data_type: VA50(50)
+    mandatory: false
+    pii: true
+    comment: Patient middle name
+  - name: last_name
+    data_type: VA50(50)
+    mandatory: true
+    pii: true
+    comment: Patient last/family name
+  - name: date_of_birth
+    data_type: D
+    mandatory: true
+    pii: true
+    comment: Date of birth
+  - name: gender
+    data_type: VA20(20)
+    mandatory: true
+    comment: Administrative gender (male, female, other, unknown)
+  - name: race
+    data_type: VA50(50)
+    mandatory: false
+    comment: Race per CDC/OMB categories
+  - name: ethnicity
+    data_type: VA50(50)
+    mandatory: false
+    comment: Ethnicity (Hispanic/Latino or not)
+  - name: preferred_language
+    data_type: VA10(10)
+    mandatory: false
+    comment: Preferred language (ISO 639-1)
+  - name: marital_status
+    data_type: VA20(20)
+    mandatory: false
+    comment: Marital status code
+  - name: address_line1
+    data_type: VA100(100)
+    mandatory: false
+    pii: true
+    comment: Street address line 1
+  - name: address_line2
+    data_type: VA100(100)
+    mandatory: false
+    pii: true
+    comment: Street address line 2
+  - name: city
+    data_type: VA50(50)
+    mandatory: false
+    comment: City
+  - name: state
+    data_type: VA2(2)
+    mandatory: false
+    comment: State code
+  - name: postal_code
+    data_type: VA10(10)
+    mandatory: false
+    comment: ZIP/postal code
+  - name: country
+    data_type: VA2(2)
+    mandatory: false
+    comment: Country code (ISO 3166-1 alpha-2)
+  - name: phone_home
+    data_type: VA20(20)
+    mandatory: false
+    pii: true
+    comment: Home phone number
+  - name: phone_mobile
+    data_type: VA20(20)
+    mandatory: false
+    pii: true
+    comment: Mobile phone number
+  - name: email
+    data_type: VA100(100)
+    mandatory: false
+    pii: true
+    comment: Email address
+  - name: emergency_contact_name
+    data_type: VA100(100)
+    mandatory: false
+    pii: true
+    comment: Emergency contact name
+  - name: emergency_contact_phone
+    data_type: VA20(20)
+    mandatory: false
+    pii: true
+    comment: Emergency contact phone
+  - name: primary_care_provider_id
+    data_type: VA36(36)
+    mandatory: false
+    comment: Primary care provider ID
+  - name: deceased_indicator
+    data_type: B
+    mandatory: false
+    comment: Deceased flag
+  - name: deceased_date
+    data_type: D
+    mandatory: false
+    comment: Date of death if deceased
+  - name: active
+    data_type: B
+    mandatory: true
+    comment: Active patient record flag

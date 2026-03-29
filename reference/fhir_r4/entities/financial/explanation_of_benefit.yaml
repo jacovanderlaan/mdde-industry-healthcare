@@ -1,0 +1,417 @@
+# FHIR R4: ExplanationOfBenefit Resource
+# https://hl7.org/fhir/R4/explanationofbenefit.html
+
+entity:
+  entity_id: fhir_explanation_of_benefit
+  name: ExplanationOfBenefit
+  description: |
+    This resource provides the adjudication details from the processing
+    of a Claim resource. The ExplanationOfBenefit (EOB) is the payer's
+    response to a claim.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: ExplanationOfBenefit
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_eob_number
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | cancelled | draft | entered-in-error
+
+    - name: type_code
+      data_type: string
+      length: 20
+      not_null: true
+
+    - name: sub_type_code
+      data_type: string
+      length: 50
+
+    - name: use
+      data_type: string
+      length: 20
+      not_null: true
+      description: claim | preauthorization | predetermination
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: billable_period_start
+      data_type: timestamp
+
+    - name: billable_period_end
+      data_type: timestamp
+
+    - name: created
+      data_type: timestamp
+      not_null: true
+
+    - name: enterer_id
+      data_type: string
+      length: 64
+
+    - name: insurer_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: provider_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: priority_code
+      data_type: string
+      length: 20
+
+    - name: funds_reserve_requested_code
+      data_type: string
+      length: 50
+
+    - name: funds_reserve_code
+      data_type: string
+      length: 50
+
+    - name: related_claim_id
+      data_type: string
+      length: 64
+
+    - name: related_relationship_code
+      data_type: string
+      length: 50
+
+    - name: prescription_id
+      data_type: string
+      length: 64
+
+    - name: original_prescription_id
+      data_type: string
+      length: 64
+
+    - name: payee_type_code
+      data_type: string
+      length: 50
+
+    - name: payee_party_id
+      data_type: string
+      length: 64
+
+    - name: referral_id
+      data_type: string
+      length: 64
+
+    - name: facility_id
+      data_type: string
+      length: 64
+
+    - name: claim_id
+      data_type: string
+      length: 64
+
+    - name: claim_response_id
+      data_type: string
+      length: 64
+
+    - name: outcome
+      data_type: string
+      length: 20
+      not_null: true
+      description: queued | complete | error | partial
+
+    - name: disposition
+      data_type: string
+      length: 255
+
+    - name: pre_auth_ref
+      data_type: string
+      length: 100
+
+    - name: pre_auth_ref_period_start
+      data_type: date
+
+    - name: pre_auth_ref_period_end
+      data_type: date
+
+    - name: care_team_sequence
+      data_type: integer
+
+    - name: care_team_provider_id
+      data_type: string
+      length: 64
+
+    - name: care_team_responsible
+      data_type: boolean
+
+    - name: care_team_role_code
+      data_type: string
+      length: 50
+
+    - name: diagnosis_sequence
+      data_type: integer
+
+    - name: diagnosis_code
+      data_type: string
+      length: 20
+
+    - name: diagnosis_type_code
+      data_type: string
+      length: 50
+
+    - name: diagnosis_on_admission_code
+      data_type: string
+      length: 20
+
+    - name: procedure_sequence
+      data_type: integer
+
+    - name: procedure_type_code
+      data_type: string
+      length: 50
+
+    - name: procedure_date
+      data_type: timestamp
+
+    - name: procedure_code
+      data_type: string
+      length: 20
+
+    - name: precedence
+      data_type: integer
+
+    - name: insurance_focal
+      data_type: boolean
+      not_null: true
+
+    - name: insurance_coverage_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: accident_date
+      data_type: date
+
+    - name: accident_type_code
+      data_type: string
+      length: 50
+
+    - name: item_sequence
+      data_type: integer
+
+    - name: item_care_team_sequence
+      data_type: integer
+
+    - name: item_revenue_code
+      data_type: string
+      length: 20
+
+    - name: item_category_code
+      data_type: string
+      length: 50
+
+    - name: item_product_or_service_code
+      data_type: string
+      length: 50
+
+    - name: item_modifier_code
+      data_type: string
+      length: 50
+
+    - name: item_serviced_date
+      data_type: date
+
+    - name: item_location_code
+      data_type: string
+      length: 50
+
+    - name: item_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: item_unit_price_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: item_factor
+      data_type: decimal
+      precision: 8
+      scale: 4
+
+    - name: item_net_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: item_adjudication_category_code
+      data_type: string
+      length: 50
+
+    - name: item_adjudication_reason_code
+      data_type: string
+      length: 50
+
+    - name: item_adjudication_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: item_adjudication_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: add_item_sequence
+      data_type: integer
+
+    - name: add_item_product_or_service_code
+      data_type: string
+      length: 50
+
+    - name: add_item_net_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: adjudication_category_code
+      data_type: string
+      length: 50
+
+    - name: adjudication_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: total_category_code
+      data_type: string
+      length: 50
+
+    - name: total_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: payment_type_code
+      data_type: string
+      length: 50
+
+    - name: payment_adjustment_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: payment_adjustment_reason_code
+      data_type: string
+      length: 50
+
+    - name: payment_date
+      data_type: date
+
+    - name: payment_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: payment_identifier
+      data_type: string
+      length: 100
+
+    - name: form_code
+      data_type: string
+      length: 50
+
+    - name: process_note_number
+      data_type: integer
+
+    - name: process_note_type
+      data_type: string
+      length: 20
+
+    - name: process_note_text
+      data_type: string
+      length: 2000
+
+    - name: process_note_language_code
+      data_type: string
+      length: 10
+
+    - name: benefit_period_start
+      data_type: date
+
+    - name: benefit_period_end
+      data_type: date
+
+    - name: benefit_balance_category_code
+      data_type: string
+      length: 50
+
+    - name: benefit_balance_network_code
+      data_type: string
+      length: 50
+
+    - name: benefit_balance_unit_code
+      data_type: string
+      length: 50
+
+    - name: benefit_balance_term_code
+      data_type: string
+      length: 50
+
+    - name: benefit_balance_financial_type_code
+      data_type: string
+      length: 50
+
+    - name: benefit_balance_allowed_money_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: benefit_balance_used_money_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: provider_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: insurer_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: claim_id
+      to: fhir_claim.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: insurance_coverage_id
+      to: fhir_coverage.id
+      type: fk
+      cardinality: "N:1"

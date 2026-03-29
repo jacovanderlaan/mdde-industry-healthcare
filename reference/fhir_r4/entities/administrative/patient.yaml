@@ -1,0 +1,190 @@
+# FHIR R4: Patient Resource
+# https://hl7.org/fhir/R4/patient.html
+
+entity:
+  entity_id: fhir_patient
+  name: Patient
+  description: |
+    Demographics and other administrative information about an individual
+    receiving care or other health-related services.
+
+    Key elements:
+    - identifier: Medical record numbers, SSN, etc.
+    - name: Legal name, maiden name, nicknames
+    - telecom: Phone, email, fax
+    - address: Home, work, temporary addresses
+    - contact: Emergency contacts, next of kin
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Patient
+    maturity_level: 5
+    normative: true
+    url: "https://hl7.org/fhir/R4/patient.html"
+
+  attributes:
+    # Resource identifiers
+    - name: id
+      data_type: string
+      length: 64
+      description: Logical id of this artifact
+      primary_key: true
+      not_null: true
+
+    - name: meta_version_id
+      data_type: string
+      length: 64
+      description: Version specific identifier
+
+    - name: meta_last_updated
+      data_type: timestamp
+      description: When the resource last changed
+
+    # Patient identifiers
+    - name: identifier_mrn
+      data_type: string
+      length: 100
+      description: Medical Record Number
+
+    - name: identifier_ssn
+      data_type: string
+      length: 11
+      description: Social Security Number (masked)
+      is_pii: true
+      classification: confidential
+
+    # Demographics
+    - name: active
+      data_type: boolean
+      description: Whether patient record is active
+
+    - name: name_family
+      data_type: string
+      length: 100
+      description: Family name (last name)
+      not_null: true
+      is_pii: true
+
+    - name: name_given
+      data_type: string
+      length: 100
+      description: Given names (first, middle)
+      is_pii: true
+
+    - name: name_prefix
+      data_type: string
+      length: 20
+      description: Name prefix (Mr., Mrs., Dr.)
+
+    - name: name_suffix
+      data_type: string
+      length: 20
+      description: Name suffix (Jr., III)
+
+    - name: gender
+      data_type: string
+      length: 20
+      description: male | female | other | unknown
+      domain: fhir_administrative_gender
+
+    - name: birth_date
+      data_type: date
+      description: Date of birth
+      is_pii: true
+
+    - name: deceased_boolean
+      data_type: boolean
+      description: Indicates if patient is deceased
+
+    - name: deceased_date_time
+      data_type: timestamp
+      description: Date/time of death if known
+
+    # Contact information
+    - name: telecom_phone
+      data_type: string
+      length: 30
+      description: Primary phone number
+      is_pii: true
+
+    - name: telecom_email
+      data_type: string
+      length: 255
+      description: Email address
+      is_pii: true
+
+    # Address
+    - name: address_line
+      data_type: string
+      length: 255
+      description: Street address
+      is_pii: true
+
+    - name: address_city
+      data_type: string
+      length: 100
+      description: City
+
+    - name: address_state
+      data_type: string
+      length: 50
+      description: State/province
+
+    - name: address_postal_code
+      data_type: string
+      length: 20
+      description: Postal/ZIP code
+
+    - name: address_country
+      data_type: string
+      length: 50
+      description: Country
+
+    # Other demographics
+    - name: marital_status_code
+      data_type: string
+      length: 20
+      description: Marital status code
+
+    - name: multiple_birth_boolean
+      data_type: boolean
+      description: Whether patient is part of multiple birth
+
+    - name: multiple_birth_integer
+      data_type: integer
+      description: Birth order in multiple birth
+
+    - name: communication_language
+      data_type: string
+      length: 10
+      description: Preferred language code (ISO 639-1)
+
+    - name: communication_preferred
+      data_type: boolean
+      description: Whether this is preferred language
+
+    # Managing organization
+    - name: managing_organization_id
+      data_type: string
+      length: 64
+      description: Reference to managing Organization
+
+    # General practitioner
+    - name: general_practitioner_id
+      data_type: string
+      length: 64
+      description: Reference to primary care Practitioner
+
+  relationships:
+    - from: managing_organization_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+      description: Organization managing this patient record
+
+    - from: general_practitioner_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+      description: Patient's primary care provider

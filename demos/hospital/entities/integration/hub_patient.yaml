@@ -1,0 +1,63 @@
+entity:
+  entity_id: hub_patient
+  name: Hub Patient
+  description: |
+    Data Vault 2.0 Hub for patient entities. Contains unique
+    patient business keys from all healthcare source systems.
+  stereotype: dv_hub
+  layer: integration
+
+  data_vault:
+    hub_type: standard
+    business_key_columns: [patient_bk]
+
+  fhir_mapping:
+    resource: Patient
+    identifier_system: "urn:oid:2.16.840.1.113883.4.1"
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_bk]
+
+  tags: [phi, hipaa_covered]
+
+  lineage:
+    sources:
+      - entity_id: src_ehr_system
+        mapping_type: derive
+      - entity_id: src_hl7_messages
+        mapping_type: derive
+
+  attributes:
+    - name: hub_patient_hk
+      data_type: string
+      length: 64
+      description: Hub hash key (MD5 of business key)
+      primary_key: true
+      derived:
+        expression: "MD5(UPPER(TRIM(patient_bk)))"
+
+    - name: patient_bk
+      data_type: string
+      length: 50
+      description: Patient business key (MRN)
+      business_key: true
+      not_null: true
+      tags: [phi]
+
+    - name: load_dts
+      data_type: timestamp
+      description: Load date timestamp
+      not_null: true
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+      not_null: true
+
+  indexes:
+    - name: idx_hub_patient_bk
+      columns: [patient_bk]
+      unique: true

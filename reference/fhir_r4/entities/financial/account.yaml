@@ -1,0 +1,127 @@
+# FHIR R4: Account Resource
+# https://hl7.org/fhir/R4/account.html
+
+entity:
+  entity_id: fhir_account
+  name: Account
+  description: |
+    A financial tool for tracking value accrued for a particular purpose.
+    In a healthcare context, this can be used to track charges and credits
+    for a patient's billing account.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Account
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_account_number
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | inactive | entered-in-error | on-hold | unknown
+
+    - name: type_code
+      data_type: string
+      length: 50
+
+    - name: name
+      data_type: string
+      length: 255
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+
+    - name: subject_device_id
+      data_type: string
+      length: 64
+
+    - name: subject_practitioner_id
+      data_type: string
+      length: 64
+
+    - name: subject_location_id
+      data_type: string
+      length: 64
+
+    - name: subject_healthcare_service_id
+      data_type: string
+      length: 64
+
+    - name: subject_organization_id
+      data_type: string
+      length: 64
+
+    - name: service_period_start
+      data_type: timestamp
+
+    - name: service_period_end
+      data_type: timestamp
+
+    - name: coverage_coverage_id
+      data_type: string
+      length: 64
+
+    - name: coverage_priority
+      data_type: integer
+
+    - name: owner_id
+      data_type: string
+      length: 64
+
+    - name: description
+      data_type: string
+      length: 2000
+
+    - name: guarantor_party_id
+      data_type: string
+      length: 64
+
+    - name: guarantor_on_hold
+      data_type: boolean
+
+    - name: guarantor_period_start
+      data_type: timestamp
+
+    - name: guarantor_period_end
+      data_type: timestamp
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: owner_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: coverage_coverage_id
+      to: fhir_coverage.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: part_of_id
+      to: fhir_account.id
+      type: fk
+      cardinality: "N:1"

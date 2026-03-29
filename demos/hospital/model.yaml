@@ -1,0 +1,66 @@
+model:
+  model_id: healthcare_fhir_demo
+  name: Healthcare Data Platform (FHIR R4)
+  description: |
+    Healthcare data platform demonstrating FHIR R4 resource mapping,
+    HL7 message processing, and HIPAA-compliant data handling.
+  version: "1.0.0"
+  domain: healthcare
+
+  metadata:
+    owner: health_informatics
+    steward: compliance_officer
+    classification: phi_restricted
+
+  standards:
+    - FHIR R4
+    - HL7 v2.x
+    - ICD-10
+    - CPT
+    - SNOMED-CT
+    - LOINC
+
+  compliance:
+    frameworks:
+      - HIPAA
+      - HITECH
+      - 21CFR11
+
+  layers:
+    - name: source
+      description: External healthcare system feeds
+      prefix: src_
+
+    - name: staging
+      description: FHIR-normalized staging
+      prefix: stg_
+
+    - name: integration
+      description: Data Vault 2.0 integration
+      prefix: ""
+
+    - name: business
+      description: Analytics-ready dimensions and facts
+      prefix: ""
+
+  tags:
+    security:
+      - phi  # Protected Health Information
+      - pii  # Personally Identifiable Information
+      - hipaa_covered
+      - restricted
+      - de_identified
+
+    clinical:
+      - diagnosis
+      - procedure
+      - medication
+      - vital_signs
+      - lab_result
+
+    domain:
+      - patient
+      - provider
+      - encounter
+      - claim
+      - organization

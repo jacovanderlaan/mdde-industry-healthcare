@@ -1,0 +1,156 @@
+# FHIR R4: Consent Resource
+# https://hl7.org/fhir/R4/consent.html
+
+entity:
+  entity_id: fhir_consent
+  name: Consent
+  description: |
+    A record of a healthcare consumer's choices, which permits or
+    denies identified recipient(s) or role(s) to perform actions
+    affecting the consumer within a given policy context.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Consent
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: draft | proposed | active | rejected | inactive | entered-in-error
+
+    - name: scope_code
+      data_type: string
+      length: 50
+      not_null: true
+      description: adr | research | patient-privacy | treatment
+
+    - name: category_code
+      data_type: string
+      length: 50
+      not_null: true
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: date_time
+      data_type: timestamp
+
+    - name: performer_id
+      data_type: string
+      length: 64
+
+    - name: organization_id
+      data_type: string
+      length: 64
+
+    - name: source_attachment_content_type
+      data_type: string
+      length: 100
+
+    - name: source_attachment_url
+      data_type: string
+      length: 255
+
+    - name: source_reference_id
+      data_type: string
+      length: 64
+
+    - name: policy_authority
+      data_type: string
+      length: 255
+
+    - name: policy_uri
+      data_type: string
+      length: 255
+
+    - name: policy_rule_code
+      data_type: string
+      length: 50
+
+    - name: verification_verified
+      data_type: boolean
+
+    - name: verification_verified_with_id
+      data_type: string
+      length: 64
+
+    - name: verification_verification_date
+      data_type: timestamp
+
+    - name: provision_type
+      data_type: string
+      length: 20
+      description: deny | permit
+
+    - name: provision_period_start
+      data_type: timestamp
+
+    - name: provision_period_end
+      data_type: timestamp
+
+    - name: provision_actor_role_code
+      data_type: string
+      length: 50
+
+    - name: provision_actor_reference_id
+      data_type: string
+      length: 64
+
+    - name: provision_action_code
+      data_type: string
+      length: 50
+
+    - name: provision_security_label_code
+      data_type: string
+      length: 50
+
+    - name: provision_purpose_code
+      data_type: string
+      length: 50
+
+    - name: provision_class_code
+      data_type: string
+      length: 50
+
+    - name: provision_code
+      data_type: string
+      length: 50
+
+    - name: provision_data_meaning
+      data_type: string
+      length: 20
+      description: instance | related | dependents | authoredby
+
+    - name: provision_data_reference_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: organization_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"

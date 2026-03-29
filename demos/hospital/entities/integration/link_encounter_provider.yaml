@@ -1,0 +1,72 @@
+entity:
+  entity_id: link_encounter_provider
+  name: Encounter-Provider Link
+  description: |
+    Data Vault link connecting encounters to providers.
+    Captures attending, admitting, and consulting providers.
+  stereotype: dv_link
+  layer: integration
+
+  data_vault:
+    link_type: standard
+    linked_hubs:
+      - hub_encounter
+      - hub_provider
+
+  fhir_mapping:
+    resource: Encounter
+    version: R4
+    reference_element: participant
+
+  lineage:
+    sources:
+      - entity_id: stg_encounters
+        mapping_type: derive
+
+  attributes:
+    - name: encounter_provider_hash_key
+      data_type: string
+      length: 64
+      description: Link hash key
+      primary_key: true
+      derived:
+        expression: "MD5(CONCAT(encounter_hash_key, '|', provider_hash_key, '|', provider_role))"
+
+    - name: encounter_hash_key
+      data_type: string
+      length: 64
+      description: Encounter hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_encounter.encounter_hash_key
+
+    - name: provider_hash_key
+      data_type: string
+      length: 64
+      description: Provider hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_provider.provider_hash_key
+
+    - name: provider_role
+      data_type: string
+      length: 30
+      description: Provider role (attending, admitting, consulting, referring)
+      not_null: true
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+      not_null: true
+
+  quality_rules:
+    - rule_id: link_ep_001
+      name: Valid Provider Role
+      expression: "provider_role IN ('attending', 'admitting', 'consulting', 'referring', 'primary', 'secondary')"
+      severity: error

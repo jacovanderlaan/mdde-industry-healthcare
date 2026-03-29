@@ -1,0 +1,195 @@
+entity:
+  entity_id: dim_provider
+  name: Provider Dimension
+  description: |
+    Provider dimension for healthcare analytics including physicians,
+    nurses, and facilities with credential and specialty tracking.
+  stereotype: dim_scd2
+  layer: business
+
+  dimensional:
+    dimension_type: scd2
+    natural_key: [provider_npi]
+    surrogate_key: provider_sk
+    effective_date_column: effective_from
+    expiry_date_column: effective_to
+    current_flag_column: is_current
+
+  fhir_mapping:
+    resources:
+      - Practitioner
+      - Organization
+    version: R4
+
+  lineage:
+    sources:
+      - entity_id: hub_provider
+        mapping_type: derive
+      - entity_id: sat_provider_details
+        mapping_type: derive
+
+  attributes:
+    - name: provider_sk
+      data_type: bigint
+      description: Surrogate key
+      primary_key: true
+      auto_increment: true
+
+    - name: provider_npi
+      data_type: string
+      length: 10
+      description: National Provider Identifier
+      not_null: true
+
+    - name: provider_type
+      data_type: string
+      length: 30
+      description: Provider type (physician, nurse, facility)
+
+    - name: first_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: First name
+
+    - name: last_name
+      data_type: string
+      length: 50
+      description: Last name
+
+    - name: full_name
+      data_type: string
+      length: 100
+      description: Full display name
+      derived:
+        expression: "CONCAT(first_name, ' ', last_name, COALESCE(', ' || credentials, ''))"
+
+    - name: credentials
+      data_type: string
+      length: 30
+      nullable: true
+      description: Professional credentials
+
+    - name: specialty_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Primary specialty code
+
+    - name: specialty_description
+      data_type: string
+      length: 100
+      nullable: true
+      description: Specialty description
+
+    - name: specialty_category
+      data_type: string
+      length: 50
+      nullable: true
+      description: Specialty category (surgical, medical, diagnostic)
+
+    - name: taxonomy_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Healthcare provider taxonomy
+
+    - name: phone
+      data_type: string
+      length: 20
+      nullable: true
+      description: Primary phone
+
+    - name: email
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email address
+
+    - name: city
+      data_type: string
+      length: 50
+      nullable: true
+      description: Practice city
+
+    - name: state
+      data_type: string
+      length: 2
+      nullable: true
+      description: Practice state
+
+    - name: postal_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Practice postal code
+
+    - name: license_state
+      data_type: string
+      length: 2
+      nullable: true
+      description: Primary license state
+
+    - name: license_status
+      data_type: string
+      length: 20
+      default: active
+      description: License status
+
+    - name: accepting_patients
+      data_type: boolean
+      default: true
+      description: Accepting new patients
+
+    - name: affiliated_facility_count
+      data_type: integer
+      default: 0
+      description: Number of affiliated facilities
+
+    - name: active_indicator
+      data_type: boolean
+      default: true
+      description: Active provider
+
+    # SCD2 metadata
+    - name: effective_from
+      data_type: timestamp
+      description: Record effective start
+      not_null: true
+
+    - name: effective_to
+      data_type: timestamp
+      nullable: true
+      description: Record effective end
+
+    - name: is_current
+      data_type: boolean
+      default: true
+      description: Current record indicator
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system
+
+  indexes:
+    - name: idx_dim_prov_npi
+      columns: [provider_npi]
+
+    - name: idx_dim_prov_current
+      columns: [provider_npi]
+      where: "is_current = TRUE"
+
+    - name: idx_dim_prov_specialty
+      columns: [specialty_code, is_current]
+
+  quality_rules:
+    - rule_id: dim_prov_001
+      name: Valid NPI
+      expression: "LENGTH(provider_npi) = 10"
+      severity: error
+
+    - rule_id: dim_prov_002
+      name: Required Last Name
+      expression: "last_name IS NOT NULL"
+      severity: error

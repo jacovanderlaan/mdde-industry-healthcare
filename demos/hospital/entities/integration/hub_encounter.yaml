@@ -1,0 +1,61 @@
+entity:
+  entity_id: hub_encounter
+  name: Encounter Hub
+  description: |
+    Data Vault hub for patient encounters/visits.
+    Conforms to FHIR Encounter resource.
+  stereotype: dv_hub
+  layer: integration
+
+  data_vault:
+    hub_type: standard
+    business_keys: [source_system, visit_number]
+
+  fhir_mapping:
+    resource: Encounter
+    version: R4
+
+  lineage:
+    sources:
+      - entity_id: stg_encounters
+        mapping_type: derive
+
+  attributes:
+    - name: encounter_hash_key
+      data_type: string
+      length: 64
+      description: Hash key derived from source system and visit number
+      primary_key: true
+      derived:
+        expression: "MD5(CONCAT(source_system, '|', visit_number))"
+
+    - name: source_system
+      data_type: string
+      length: 50
+      description: Source system identifier
+      business_key: true
+      not_null: true
+
+    - name: visit_number
+      data_type: string
+      length: 30
+      description: Visit/encounter number
+      business_key: true
+      not_null: true
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+      not_null: true
+
+  quality_rules:
+    - rule_id: hub_enc_001
+      name: Required Visit Number
+      expression: "visit_number IS NOT NULL AND LENGTH(TRIM(visit_number)) > 0"
+      severity: error

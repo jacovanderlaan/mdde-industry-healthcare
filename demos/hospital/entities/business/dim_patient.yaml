@@ -1,0 +1,266 @@
+entity:
+  entity_id: dim_patient_hc
+  name: Patient Dimension
+  description: |
+    Business-ready patient dimension with SCD Type 2 history.
+    Contains de-identified and PHI versions for different use cases.
+    Maps to FHIR Patient resource.
+  stereotype: dim_scd2
+  layer: business
+
+  dimensional:
+    dimension_type: scd2
+    natural_key: [patient_id]
+    surrogate_key: patient_sk
+    effective_date_column: effective_from
+    expiry_date_column: effective_to
+    current_flag_column: is_current
+
+  fhir_mapping:
+    resource: Patient
+
+  compliance:
+    hipaa:
+      scope: true
+      de_identification: safe_harbor
+      limited_dataset_eligible: true
+
+  tags: [phi, hipaa_covered]
+
+  lineage:
+    sources:
+      - entity_id: hub_patient
+        mapping_type: derive
+      - entity_id: sat_patient_demographics
+        mapping_type: derive
+
+  attributes:
+    - name: patient_sk
+      data_type: bigint
+      description: Surrogate key
+      primary_key: true
+      auto_increment: true
+
+    - name: patient_id
+      data_type: string
+      length: 50
+      description: Natural business key (MRN)
+      not_null: true
+      tags: [phi]
+
+    - name: patient_hash_key
+      data_type: string
+      length: 64
+      description: Data Vault hash key reference
+
+    # De-identified fields (safe for analytics)
+    - name: age_band
+      data_type: string
+      length: 20
+      description: Age band (safe harbor - 90+ grouped)
+      derived:
+        expression: |
+          CASE
+            WHEN age < 1 THEN 'Infant (<1)'
+            WHEN age < 5 THEN 'Toddler (1-4)'
+            WHEN age < 13 THEN 'Child (5-12)'
+            WHEN age < 18 THEN 'Adolescent (13-17)'
+            WHEN age < 30 THEN 'Young Adult (18-29)'
+            WHEN age < 45 THEN 'Adult (30-44)'
+            WHEN age < 65 THEN 'Middle Age (45-64)'
+            WHEN age < 90 THEN 'Senior (65-89)'
+            ELSE '90+'
+          END
+
+    - name: gender
+      data_type: string
+      length: 10
+      description: Administrative gender
+
+    - name: birth_sex
+      data_type: string
+      length: 10
+      nullable: true
+      description: Sex assigned at birth
+
+    - name: race_category
+      data_type: string
+      length: 50
+      nullable: true
+      description: Race category (US Core)
+
+    - name: ethnicity_category
+      data_type: string
+      length: 50
+      nullable: true
+      description: Ethnicity category (US Core)
+
+    - name: language_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Preferred language
+
+    - name: marital_status
+      data_type: string
+      length: 20
+      nullable: true
+      description: Marital status
+
+    # Geographic (limited dataset eligible)
+    - name: state_code
+      data_type: string
+      length: 2
+      nullable: true
+      description: State code
+
+    - name: zip_prefix
+      data_type: string
+      length: 3
+      nullable: true
+      description: ZIP 3-digit prefix
+
+    - name: region
+      data_type: string
+      length: 20
+      nullable: true
+      description: Census region
+      derived:
+        expression: |
+          CASE
+            WHEN state_code IN ('CT','ME','MA','NH','RI','VT','NJ','NY','PA') THEN 'Northeast'
+            WHEN state_code IN ('IL','IN','MI','OH','WI','IA','KS','MN','MO','NE','ND','SD') THEN 'Midwest'
+            WHEN state_code IN ('DE','FL','GA','MD','NC','SC','VA','DC','WV','AL','KY','MS','TN','AR','LA','OK','TX') THEN 'South'
+            ELSE 'West'
+          END
+
+    - name: urban_rural
+      data_type: string
+      length: 10
+      nullable: true
+      description: Urban/Rural classification
+
+    # PHI fields (restricted access)
+    - name: full_name
+      data_type: string
+      length: 100
+      nullable: true
+      description: Full patient name (PHI - restricted)
+      tags: [phi, pii]
+      access_control:
+        roles: [phi_authorized, provider, care_team]
+
+    - name: birth_date
+      data_type: date
+      nullable: true
+      description: Date of birth (PHI - restricted)
+      tags: [phi]
+      access_control:
+        roles: [phi_authorized, provider]
+
+    - name: ssn_masked
+      data_type: string
+      length: 11
+      nullable: true
+      description: Masked SSN (XXX-XX-1234)
+      tags: [phi]
+      access_control:
+        roles: [phi_authorized]
+
+    - name: phone_masked
+      data_type: string
+      length: 14
+      nullable: true
+      description: Masked phone (XXX-XXX-1234)
+      tags: [phi]
+
+    - name: email_domain
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email domain only (de-identified)
+
+    # Clinical indicators
+    - name: deceased_flag
+      data_type: boolean
+      default: false
+      description: Deceased indicator
+
+    - name: active_flag
+      data_type: boolean
+      default: true
+      description: Active patient indicator
+
+    - name: high_risk_flag
+      data_type: boolean
+      default: false
+      description: High risk patient flag
+      tags: [clinical]
+
+    - name: chronic_condition_count
+      data_type: integer
+      default: 0
+      description: Number of chronic conditions
+      tags: [clinical]
+
+    # Provider relationships
+    - name: primary_care_provider_sk
+      data_type: bigint
+      nullable: true
+      description: Primary care provider key
+      foreign_key:
+        references: dim_provider.provider_sk
+
+    - name: managing_organization_sk
+      data_type: bigint
+      nullable: true
+      description: Managing organization key
+      foreign_key:
+        references: dim_organization.organization_sk
+
+    # SCD2 metadata
+    - name: effective_from
+      data_type: timestamp
+      description: Record effective start date
+      not_null: true
+
+    - name: effective_to
+      data_type: timestamp
+      nullable: true
+      description: Record effective end date
+
+    - name: is_current
+      data_type: boolean
+      default: true
+      description: Current record indicator
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system
+
+    - name: etl_batch_id
+      data_type: bigint
+      description: ETL batch identifier
+
+  indexes:
+    - name: idx_dim_patient_bk
+      columns: [patient_id]
+
+    - name: idx_dim_patient_current
+      columns: [patient_id]
+      where: "is_current = TRUE"
+
+    - name: idx_dim_patient_pcp
+      columns: [primary_care_provider_sk]
+
+  quality_rules:
+    - rule_id: dim_pat_001
+      name: Valid Age Band
+      expression: "age_band IS NOT NULL"
+      severity: error
+
+    - rule_id: dim_pat_002
+      name: Valid Gender
+      expression: "gender IN ('male', 'female', 'other', 'unknown')"
+      severity: error

@@ -1,0 +1,271 @@
+entity:
+  entity_id: stg_patients
+  name: Staged Patients
+  description: |
+    Cleaned and validated patient data from multiple sources.
+    Conforms to FHIR Patient resource structure.
+  stereotype: stg_cleaned
+  layer: staging
+
+  fhir_mapping:
+    resource: Patient
+    version: R4
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [mrn, given_name, family_name, birth_date, ssn_hash, address, phone, email]
+
+  tags: [phi, hipaa_covered]
+
+  lineage:
+    sources:
+      - entity_id: src_ehr_system
+        mapping_type: transform
+      - entity_id: src_hl7_messages
+        mapping_type: transform
+
+  attributes:
+    - name: patient_hash_key
+      data_type: string
+      length: 64
+      description: Hash key for patient identification
+      business_key: true
+      derived:
+        expression: "MD5(UPPER(TRIM(mrn)))"
+
+    - name: mrn
+      data_type: string
+      length: 20
+      description: Medical Record Number (standardized)
+      not_null: true
+      tags: [phi]
+
+    - name: source_patient_id
+      data_type: string
+      length: 36
+      description: Original patient ID from source
+
+    - name: source_system
+      data_type: string
+      length: 50
+      description: Source system identifier
+
+    - name: given_name
+      data_type: string
+      length: 50
+      description: First/given name (standardized)
+      tags: [phi]
+
+    - name: middle_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: Middle name
+      tags: [phi]
+
+    - name: family_name
+      data_type: string
+      length: 50
+      description: Family/last name (standardized)
+      tags: [phi]
+
+    - name: name_suffix
+      data_type: string
+      length: 10
+      nullable: true
+      description: Name suffix
+
+    - name: birth_date
+      data_type: date
+      description: Date of birth
+      tags: [phi]
+
+    - name: gender
+      data_type: string
+      length: 10
+      description: Administrative gender (FHIR ValueSet)
+
+    - name: birth_sex
+      data_type: string
+      length: 10
+      nullable: true
+      description: Sex assigned at birth
+
+    - name: ssn_hash
+      data_type: string
+      length: 64
+      nullable: true
+      description: Hashed SSN for matching
+      tags: [phi]
+      derived:
+        expression: "SHA256(ssn)"
+
+    - name: race_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Race code (OMB)
+
+    - name: race_description
+      data_type: string
+      length: 100
+      nullable: true
+      description: Race description
+
+    - name: ethnicity_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Ethnicity code (OMB)
+
+    - name: ethnicity_description
+      data_type: string
+      length: 100
+      nullable: true
+      description: Ethnicity description
+
+    - name: preferred_language
+      data_type: string
+      length: 10
+      nullable: true
+      description: Preferred language (ISO 639-1)
+
+    - name: marital_status
+      data_type: string
+      length: 20
+      nullable: true
+      description: Marital status code
+
+    - name: address_line_1
+      data_type: string
+      length: 100
+      nullable: true
+      description: Street address line 1
+      tags: [phi]
+
+    - name: address_line_2
+      data_type: string
+      length: 100
+      nullable: true
+      description: Street address line 2
+      tags: [phi]
+
+    - name: city
+      data_type: string
+      length: 50
+      nullable: true
+      description: City
+      tags: [phi]
+
+    - name: state
+      data_type: string
+      length: 2
+      nullable: true
+      description: State code
+
+    - name: postal_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Postal/ZIP code
+      tags: [phi]
+
+    - name: country
+      data_type: string
+      length: 2
+      default: "US"
+      description: Country code
+
+    - name: phone_home
+      data_type: string
+      length: 20
+      nullable: true
+      description: Home phone (E.164 format)
+      tags: [phi]
+
+    - name: phone_mobile
+      data_type: string
+      length: 20
+      nullable: true
+      description: Mobile phone (E.164 format)
+      tags: [phi]
+
+    - name: phone_work
+      data_type: string
+      length: 20
+      nullable: true
+      description: Work phone
+      tags: [phi]
+
+    - name: email
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email address
+      tags: [phi]
+
+    - name: deceased_flag
+      data_type: boolean
+      default: false
+      description: Deceased indicator
+
+    - name: deceased_date
+      data_type: date
+      nullable: true
+      description: Date of death
+
+    - name: active_flag
+      data_type: boolean
+      default: true
+      description: Active record indicator
+
+    - name: primary_care_provider_id
+      data_type: string
+      length: 20
+      nullable: true
+      description: Primary care provider NPI
+
+    - name: managing_organization_id
+      data_type: string
+      length: 36
+      nullable: true
+      description: Managing organization ID
+
+    - name: record_created_ts
+      data_type: timestamp
+      description: Record creation timestamp in source
+
+    - name: record_updated_ts
+      data_type: timestamp
+      description: Last update timestamp in source
+
+    - name: load_ts
+      data_type: timestamp
+      description: ETL load timestamp
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Record source identifier
+
+  quality_rules:
+    - rule_id: stg_pat_001
+      name: Required MRN
+      expression: "mrn IS NOT NULL AND LENGTH(TRIM(mrn)) > 0"
+      severity: error
+
+    - rule_id: stg_pat_002
+      name: Valid Gender
+      expression: "gender IN ('male', 'female', 'other', 'unknown')"
+      severity: error
+
+    - rule_id: stg_pat_003
+      name: Valid Birth Date
+      expression: "birth_date <= CURRENT_DATE AND birth_date >= '1900-01-01'"
+      severity: error
+
+    - rule_id: stg_pat_004
+      name: Deceased Consistency
+      expression: "deceased_flag = FALSE OR deceased_date IS NOT NULL"
+      severity: warning

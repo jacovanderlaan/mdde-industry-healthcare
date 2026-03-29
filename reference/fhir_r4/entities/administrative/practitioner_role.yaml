@@ -1,0 +1,104 @@
+# FHIR R4: PractitionerRole Resource
+# https://hl7.org/fhir/R4/practitionerrole.html
+
+entity:
+  entity_id: fhir_practitioner_role
+  name: PractitionerRole
+  description: |
+    A specific set of Roles/Locations/Specialties/Services that a
+    practitioner may perform at an organization.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: PractitionerRole
+    maturity_level: 4
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: active
+      data_type: boolean
+
+    - name: period_start
+      data_type: date
+
+    - name: period_end
+      data_type: date
+
+    - name: practitioner_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: organization_id
+      data_type: string
+      length: 64
+
+    - name: code
+      data_type: string
+      length: 50
+      description: Role code (e.g., doctor, nurse)
+
+    - name: specialty_code
+      data_type: string
+      length: 50
+      description: Specialty (e.g., cardiology, oncology)
+
+    - name: location_id
+      data_type: string
+      length: 64
+
+    - name: healthcare_service_id
+      data_type: string
+      length: 64
+
+    - name: telecom_phone
+      data_type: string
+      length: 30
+
+    - name: telecom_email
+      data_type: string
+      length: 255
+
+    - name: available_time
+      data_type: string
+      length: 1000
+      description: JSON array of availability
+
+    - name: not_available
+      data_type: string
+      length: 1000
+      description: JSON array of unavailable periods
+
+    - name: availability_exceptions
+      data_type: string
+      length: 500
+
+  relationships:
+    - from: practitioner_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: organization_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"

@@ -1,0 +1,170 @@
+# FHIR R4: AllergyIntolerance Resource
+# https://hl7.org/fhir/R4/allergyintolerance.html
+
+entity:
+  entity_id: fhir_allergy_intolerance
+  name: AllergyIntolerance
+  description: |
+    Risk of harmful or undesirable physiological response which is
+    unique to an individual and associated with exposure to a substance.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: AllergyIntolerance
+    maturity_level: 4
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: clinical_status_code
+      data_type: string
+      length: 20
+      description: active | inactive | resolved
+
+    - name: verification_status_code
+      data_type: string
+      length: 20
+      description: unconfirmed | confirmed | refuted | entered-in-error
+
+    - name: type
+      data_type: string
+      length: 20
+      description: allergy | intolerance
+
+    - name: category
+      data_type: string
+      length: 20
+      description: food | medication | environment | biologic
+
+    - name: criticality
+      data_type: string
+      length: 20
+      description: low | high | unable-to-assess
+
+    - name: code_system
+      data_type: string
+      length: 100
+
+    - name: code_code
+      data_type: string
+      length: 50
+      not_null: true
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: onset_date_time
+      data_type: timestamp
+
+    - name: onset_age_value
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: onset_period_start
+      data_type: timestamp
+
+    - name: onset_period_end
+      data_type: timestamp
+
+    - name: onset_range_low
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: onset_range_high
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: onset_string
+      data_type: string
+      length: 255
+
+    - name: recorded_date
+      data_type: timestamp
+
+    - name: recorder_id
+      data_type: string
+      length: 64
+
+    - name: asserter_id
+      data_type: string
+      length: 64
+
+    - name: last_occurrence
+      data_type: timestamp
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: reaction_substance_code
+      data_type: string
+      length: 50
+
+    - name: reaction_substance_display
+      data_type: string
+      length: 255
+
+    - name: reaction_manifestation_code
+      data_type: string
+      length: 50
+
+    - name: reaction_manifestation_display
+      data_type: string
+      length: 255
+
+    - name: reaction_description
+      data_type: string
+      length: 1000
+
+    - name: reaction_onset
+      data_type: timestamp
+
+    - name: reaction_severity
+      data_type: string
+      length: 20
+      description: mild | moderate | severe
+
+    - name: reaction_exposure_route_code
+      data_type: string
+      length: 50
+
+    - name: reaction_note
+      data_type: string
+      length: 1000
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"

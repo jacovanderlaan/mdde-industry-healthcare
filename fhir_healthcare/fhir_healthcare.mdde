@@ -1,0 +1,776 @@
+# FHIR R4 Healthcare Interoperability Demo
+# Fast Healthcare Interoperability Resources (FHIR) standard by HL7
+# Demonstrates healthcare data exchange and interoperability
+
+model FHIRHealthcare {
+    version: "1.0"
+    description: "FHIR R4 compliant healthcare data model for interoperability"
+    domain: "Healthcare Interoperability"
+    compliance: ["FHIR_R4", "HL7", "HIPAA", "SMART_on_FHIR"]
+}
+
+# FHIR Patient Resource
+entity Patient {
+    id: string primary key  # FHIR Resource ID
+    identifier: json not null  # Array of identifiers (MRN, SSN, etc.)
+
+    active: boolean default true
+
+    # Name (can have multiple)
+    name: json not null  # HumanName: family, given, prefix, suffix, use
+
+    # Telecom (phone, email, etc.)
+    telecom: json?  # Array of ContactPoint
+
+    gender: enum("male", "female", "other", "unknown") not null
+    birth_date: date not null
+    deceased_boolean: boolean default false
+    deceased_datetime: datetime?
+
+    # Address (can have multiple)
+    address: json?  # Array of Address
+
+    marital_status: json?  # CodeableConcept
+    multiple_birth: boolean?
+    multiple_birth_integer: integer?
+
+    # Photo
+    photo: json?  # Array of Attachment
+
+    # Contact (emergency contact, next of kin)
+    contact: json?  # Array of ContactComponent
+
+    # Communication (languages)
+    communication: json?  # Array with language CodeableConcept
+
+    # General Practitioner
+    general_practitioner: json?  # Array of References
+
+    managing_organization: string?  # Reference to Organization
+
+    # FHIR metadata
+    meta: json?  # Meta: versionId, lastUpdated, profile, security, tag
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Practitioner Resource
+entity Practitioner {
+    id: string primary key
+    identifier: json not null  # NPI, license numbers, etc.
+
+    active: boolean default true
+
+    name: json not null  # HumanName
+    telecom: json?  # ContactPoint array
+    address: json?  # Address array
+
+    gender: enum("male", "female", "other", "unknown")?
+    birth_date: date?
+
+    # Photos
+    photo: json?  # Attachment array
+
+    # Qualifications
+    qualification: json?  # Array with code, issuer, period
+
+    # Communication languages
+    communication: json?  # CodeableConcept array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Encounter Resource
+entity Encounter {
+    id: string primary key
+    identifier: json?
+
+    status: enum("planned", "arrived", "triaged", "in-progress", "onleave", "finished", "cancelled", "entered-in-error", "unknown") not null
+
+    status_history: json?  # Array of status changes with period
+
+    # encounter class (inpatient, outpatient, emergency, etc.)
+    class_code: json not null  # Coding
+
+    # Type of encounter
+    type: json?  # Array of CodeableConcept
+
+    service_type: json?  # CodeableConcept
+    priority: json?  # CodeableConcept
+
+    # Subject (usually Patient)
+    subject: string not null  # Reference to Patient
+
+    # Episode of care
+    episode_of_care: json?  # Reference array
+
+    # Based on (appointment, etc.)
+    based_on: json?  # Reference array
+
+    # Participants (practitioners, etc.)
+    participant: json?  # Array with type, period, individual
+
+    # Appointment
+    appointment: json?  # Reference array
+
+    # Period
+    period: json?  # Period with start and end
+
+    # Length of encounter
+    length: json?  # Duration
+
+    # Reason for visit
+    reason_code: json?  # CodeableConcept array
+    reason_reference: json?  # Reference array (Condition, Procedure, etc.)
+
+    # Diagnosis
+    diagnosis: json?  # Array with condition, use, rank
+
+    # Account
+    account: json?  # Reference array
+
+    # Hospitalization details
+    hospitalization: json?  # Hospitalization component
+
+    # Location history
+    location: json?  # Array with location, status, period
+
+    service_provider: string?  # Reference to Organization
+
+    # Part of (another encounter)
+    part_of: string?  # Reference to Encounter
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Condition Resource (Diagnosis/Problem)
+entity Condition {
+    id: string primary key
+    identifier: json?
+
+    clinical_status: json not null  # CodeableConcept (active, recurrence, relapse, inactive, remission, resolved)
+    verification_status: json?  # CodeableConcept (unconfirmed, provisional, differential, confirmed, refuted, entered-in-error)
+
+    # Category (problem-list-item, encounter-diagnosis, etc.)
+    category: json?  # CodeableConcept array
+
+    severity: json?  # CodeableConcept
+
+    # The condition/diagnosis
+    code: json not null  # CodeableConcept (ICD-10, SNOMED CT, etc.)
+
+    body_site: json?  # CodeableConcept array
+
+    # Who has the condition
+    subject: string not null  # Reference to Patient
+
+    # Context (Encounter or EpisodeOfCare)
+    encounter: string?  # Reference to Encounter
+    episode_of_care: json?  # Reference array
+
+    # Onset
+    onset_datetime: datetime?
+    onset_age: json?  # Age
+    onset_period: json?  # Period
+    onset_range: json?  # Range
+    onset_string: string?
+
+    # Abatement (when it resolved)
+    abatement_datetime: datetime?
+    abatement_age: json?
+    abatement_period: json?
+    abatement_range: json?
+    abatement_string: string?
+
+    recorded_date: datetime?
+
+    # Who recorded it
+    recorder: string?  # Reference to Practitioner
+
+    # Who asserted it
+    asserter: string?  # Reference to Practitioner or Patient
+
+    # Stage
+    stage: json?  # Array with summary, assessment, type
+
+    # Evidence
+    evidence: json?  # Array with code, detail
+
+    # Notes
+    note: json?  # Annotation array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Observation Resource (Labs, Vitals, etc.)
+entity Observation {
+    id: string primary key
+    identifier: json?
+
+    # Based on (order, plan)
+    based_on: json?  # Reference array
+
+    # Part of (procedure, etc.)
+    part_of: json?  # Reference array
+
+    status: enum("registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown") not null
+
+    # Category (vital-signs, laboratory, imaging, etc.)
+    category: json?  # CodeableConcept array
+
+    # What was observed (LOINC code typically)
+    code: json not null  # CodeableConcept
+
+    # Subject (Patient)
+    subject: string not null  # Reference to Patient
+
+    # Context
+    encounter: string?  # Reference to Encounter
+
+    # Time of observation
+    effective_datetime: datetime?
+    effective_period: json?  # Period
+    effective_timing: json?  # Timing
+    effective_instant: datetime?
+
+    issued: datetime?  # When result made available
+
+    # Who performed
+    performer: json?  # Reference array
+
+    # Result value
+    value_quantity: json?  # Quantity (most common for numeric results)
+    value_codeable_concept: json?  # CodeableConcept
+    value_string: string?
+    value_boolean: boolean?
+    value_integer: integer?
+    value_range: json?  # Range
+    value_ratio: json?  # Ratio
+    value_sampled_data: json?  # SampledData
+    value_time: string?
+    value_datetime: datetime?
+    value_period: json?  # Period
+
+    # Data absent reason
+    data_absent_reason: json?  # CodeableConcept
+
+    # Interpretation (high, low, normal, etc.)
+    interpretation: json?  # CodeableConcept array
+
+    # Notes
+    note: json?  # Annotation array
+
+    # Body site
+    body_site: json?  # CodeableConcept
+
+    # Method
+    method: json?  # CodeableConcept
+
+    # Specimen
+    specimen: string?  # Reference to Specimen
+
+    # Device
+    device: string?  # Reference to Device
+
+    # Reference range
+    reference_range: json?  # Array with low, high, type, etc.
+
+    # Related observations
+    has_member: json?  # Reference array
+    derived_from: json?  # Reference array
+
+    # Components (for multi-component observations like BP)
+    component: json?  # Array with code, value[x], interpretation, reference range
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR MedicationRequest Resource (Prescription)
+entity MedicationRequest {
+    id: string primary key
+    identifier: json?
+
+    status: enum("active", "on-hold", "cancelled", "completed", "entered-in-error", "stopped", "draft", "unknown") not null
+    status_reason: json?  # CodeableConcept
+
+    intent: enum("proposal", "plan", "order", "original-order", "reflex-order", "filler-order", "instance-order", "option") not null
+
+    # Category
+    category: json?  # CodeableConcept array
+
+    priority: enum("routine", "urgent", "asap", "stat")?
+
+    do_not_perform: boolean default false
+
+    # Is this reported rather than primary record
+    reported_boolean: boolean?
+    reported_reference: string?  # Reference to Patient, Practitioner, etc.
+
+    # Medication
+    medication_codeable_concept: json?  # CodeableConcept
+    medication_reference: string?  # Reference to Medication
+
+    # Subject (Patient)
+    subject: string not null  # Reference to Patient
+
+    # Context
+    encounter: string?  # Reference to Encounter
+
+    # Supporting information
+    supporting_information: json?  # Reference array
+
+    # When written
+    authored_on: datetime?
+
+    # Requester
+    requester: string?  # Reference to Practitioner
+
+    # Performer (who will administer)
+    performer: string?  # Reference to Practitioner
+    performer_type: json?  # CodeableConcept
+
+    # Recorder
+    recorder: string?  # Reference to Practitioner
+
+    # Reason
+    reason_code: json?  # CodeableConcept array
+    reason_reference: json?  # Reference array
+
+    # Instantiates (protocol, guideline)
+    instantiates_canonical: json?  # Array of canonical URLs
+    instantiates_uri: json?  # Array of URIs
+
+    # Based on
+    based_on: json?  # Reference array
+
+    # Group identifier
+    group_identifier: json?  # Identifier
+
+    # Course of therapy
+    course_of_therapy_type: json?  # CodeableConcept
+
+    # Insurance
+    insurance: json?  # Reference array
+
+    # Notes
+    note: json?  # Annotation array
+
+    # Dosage instruction
+    dosage_instruction: json?  # Array of Dosage
+
+    # Dispense request
+    dispense_request: json?  # DispenseRequest component
+
+    # Substitution
+    substitution: json?  # Substitution component
+
+    # Prior prescription
+    prior_prescription: string?  # Reference to MedicationRequest
+
+    # Detected issues
+    detected_issue: json?  # Reference array
+
+    # Event history
+    event_history: json?  # Reference array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR AllergyIntolerance Resource
+entity AllergyIntolerance {
+    id: string primary key
+    identifier: json?
+
+    clinical_status: json?  # CodeableConcept (active, inactive, resolved)
+    verification_status: json?  # CodeableConcept (unconfirmed, confirmed, refuted, entered-in-error)
+
+    # Type (allergy or intolerance)
+    type: enum("allergy", "intolerance")?
+
+    # Category (food, medication, environment, biologic)
+    category: json?  # Array of codes
+
+    # Criticality
+    criticality: enum("low", "high", "unable-to-assess")?
+
+    # What causes the allergy
+    code: json?  # CodeableConcept
+
+    # Patient
+    patient: string not null  # Reference to Patient
+
+    # Encounter
+    encounter: string?  # Reference to Encounter
+
+    # Onset
+    onset_datetime: datetime?
+    onset_age: json?
+    onset_period: json?
+    onset_range: json?
+    onset_string: string?
+
+    recorded_date: datetime?
+
+    # Recorder
+    recorder: string?  # Reference to Practitioner
+
+    # Asserter (who identified)
+    asserter: string?  # Reference to Patient or Practitioner
+
+    last_occurrence: datetime?
+
+    # Notes
+    note: json?  # Annotation array
+
+    # Reactions
+    reaction: json?  # Array with substance, manifestation, description, onset, severity, exposure route, note
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Immunization Resource
+entity Immunization {
+    id: string primary key
+    identifier: json?
+
+    status: enum("completed", "entered-in-error", "not-done") not null
+    status_reason: json?  # CodeableConcept
+
+    # Vaccine
+    vaccine_code: json not null  # CodeableConcept (CVX code)
+
+    # Patient
+    patient: string not null  # Reference to Patient
+
+    # Encounter
+    encounter: string?  # Reference to Encounter
+
+    # When administered
+    occurrence_datetime: datetime?
+    occurrence_string: string?
+
+    recorded: datetime?
+
+    # Primary source
+    primary_source: boolean default true
+
+    # Report origin (if not primary source)
+    report_origin: json?  # CodeableConcept
+
+    # Location
+    location: string?  # Reference to Location
+
+    # Manufacturer
+    manufacturer: string?  # Reference to Organization
+
+    lot_number: string?
+    expiration_date: date?
+
+    # Site
+    site: json?  # CodeableConcept
+
+    # Route
+    route: json?  # CodeableConcept
+
+    # Dose quantity
+    dose_quantity: json?  # Quantity
+
+    # Performers
+    performer: json?  # Array with function, actor
+
+    # Notes
+    note: json?  # Annotation array
+
+    # Reason
+    reason_code: json?  # CodeableConcept array
+    reason_reference: json?  # Reference array
+
+    is_subpotent: boolean?
+    subpotent_reason: json?  # CodeableConcept array
+
+    # Education
+    education: json?  # Array with document type, reference, publication date, presentation date
+
+    # Program eligibility
+    program_eligibility: json?  # CodeableConcept array
+
+    # Funding source
+    funding_source: json?  # CodeableConcept
+
+    # Reactions
+    reaction: json?  # Array with date, detail, reported
+
+    # Protocol applied (dose number, series)
+    protocol_applied: json?  # Array with series, target disease, dose number, series doses
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Procedure Resource
+entity Procedure {
+    id: string primary key
+    identifier: json?
+
+    # Instantiates (protocol)
+    instantiates_canonical: json?  # Canonical URL array
+    instantiates_uri: json?  # URI array
+
+    # Based on
+    based_on: json?  # Reference array
+
+    # Part of
+    part_of: json?  # Reference array
+
+    status: enum("preparation", "in-progress", "not-done", "on-hold", "stopped", "completed", "entered-in-error", "unknown") not null
+    status_reason: json?  # CodeableConcept
+
+    # Category
+    category: json?  # CodeableConcept
+
+    # Procedure code (CPT, SNOMED, etc.)
+    code: json not null  # CodeableConcept
+
+    # Subject (Patient)
+    subject: string not null  # Reference to Patient
+
+    # Encounter
+    encounter: string?  # Reference to Encounter
+
+    # When performed
+    performed_datetime: datetime?
+    performed_period: json?  # Period
+    performed_string: string?
+    performed_age: json?
+    performed_range: json?
+
+    # Recorder
+    recorder: string?  # Reference to Practitioner
+
+    # Asserter
+    asserter: string?  # Reference to Practitioner
+
+    # Performers
+    performer: json?  # Array with function, actor, on behalf of
+
+    # Location
+    location: string?  # Reference to Location
+
+    # Reason
+    reason_code: json?  # CodeableConcept array
+    reason_reference: json?  # Reference array
+
+    # Body site
+    body_site: json?  # CodeableConcept array
+
+    # Outcome
+    outcome: json?  # CodeableConcept
+
+    # Reports
+    report: json?  # Reference array
+
+    # Complications
+    complication: json?  # CodeableConcept array
+    complication_detail: json?  # Reference array
+
+    # Follow up
+    follow_up: json?  # CodeableConcept array
+
+    # Notes
+    note: json?  # Annotation array
+
+    # Focal device
+    focal_device: json?  # Array with action, manipulated
+
+    # Used reference
+    used_reference: json?  # Reference array
+    used_code: json?  # CodeableConcept array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR DiagnosticReport Resource
+entity DiagnosticReport {
+    id: string primary key
+    identifier: json?
+
+    # Based on
+    based_on: json?  # Reference array
+
+    status: enum("registered", "partial", "preliminary", "final", "amended", "corrected", "appended", "cancelled", "entered-in-error", "unknown") not null
+
+    # Category (LAB, RAD, etc.)
+    category: json?  # CodeableConcept array
+
+    # Service/Test code
+    code: json not null  # CodeableConcept (LOINC)
+
+    # Subject (Patient)
+    subject: string not null  # Reference to Patient
+
+    # Encounter
+    encounter: string?  # Reference to Encounter
+
+    # Effective time
+    effective_datetime: datetime?
+    effective_period: json?
+
+    issued: datetime?
+
+    # Performers
+    performer: json?  # Reference array
+
+    # Results interpreter
+    results_interpreter: json?  # Reference array
+
+    # Specimen
+    specimen: json?  # Reference array
+
+    # Results (Observations)
+    result: json?  # Reference array to Observation
+
+    # Imaging study
+    imaging_study: json?  # Reference array
+
+    # Media (images, etc.)
+    media: json?  # Array with comment, link
+
+    # Conclusion
+    conclusion: text?
+    conclusion_code: json?  # CodeableConcept array
+
+    # Attached report
+    presented_form: json?  # Attachment array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Organization Resource
+entity Organization {
+    id: string primary key
+    identifier: json?  # NPI, TIN, etc.
+
+    active: boolean default true
+
+    # Type (prov, dept, team, govt, ins, etc.)
+    type: json?  # CodeableConcept array
+
+    name: string not null
+
+    alias: json?  # String array
+
+    telecom: json?  # ContactPoint array
+    address: json?  # Address array
+
+    # Part of (parent organization)
+    part_of: string?  # Reference to Organization
+
+    # Contact (for specific purposes)
+    contact: json?  # Array with purpose, name, telecom, address
+
+    # Endpoint (technical endpoints)
+    endpoint: json?  # Reference array
+
+    meta: json?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# FHIR Audit Event (for HIPAA compliance)
+entity AuditEvent {
+    id: string primary key
+
+    # Type of event
+    type: json not null  # Coding
+
+    # Subtype
+    subtype: json?  # Coding array
+
+    # Action (C=Create, R=Read, U=Update, D=Delete, E=Execute)
+    action: enum("C", "R", "U", "D", "E")?
+
+    # Period
+    period: json?  # Period
+
+    # When recorded
+    recorded: datetime not null
+
+    # Outcome
+    outcome: enum("0", "4", "8", "12")?  # 0=Success, 4=Minor failure, 8=Serious failure, 12=Major failure
+    outcome_desc: string?
+
+    # Purpose of event
+    purpose_of_event: json?  # CodeableConcept array
+
+    # Agents (who, what participated)
+    agent: json not null  # Array with type, role, who, requestor, location, policy, media, network, purpose of use
+
+    # Source (where event occurred)
+    source: json not null  # Observer with site, observer, type
+
+    # Entities (what was involved)
+    entity: json?  # Array with what, type, role, lifecycle, security label, name, description, query, detail
+
+    meta: json?
+
+    created_at: datetime not null
+}
+
+# Business Rules for FHIR Compliance
+rule FHIR_Required_Meta {
+    description: "All resources should have meta.lastUpdated"
+    when: "creating or updating resources"
+    then: "ensure meta.lastUpdated is set to current timestamp"
+}
+
+rule Patient_Active_Status {
+    description: "Active patients must not have deceased datetime"
+    applies_to: Patient
+    condition: active = true IMPLIES deceased_datetime is null
+}
+
+rule Observation_Final_Issued {
+    description: "Final observations must have issued datetime"
+    applies_to: Observation
+    condition: status = 'final' IMPLIES issued is not null
+}
+
+rule Encounter_Period_Valid {
+    description: "Encounter period end must be after start"
+    applies_to: Encounter
+    condition: "period.end >= period.start when both exist"
+}
+
+rule MedicationRequest_Active_Authored {
+    description: "Active medication requests must have authored date"
+    applies_to: MedicationRequest
+    condition: status in ('active', 'on-hold') IMPLIES authored_on is not null
+}

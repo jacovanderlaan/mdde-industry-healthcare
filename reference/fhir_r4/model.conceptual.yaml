@@ -1,0 +1,47 @@
+# FHIR R4 Reference Model - Conceptual Layer
+# HL7 FHIR Release 4 (R4) - Core Resources
+# https://hl7.org/fhir/R4/
+
+model:
+  model_id: fhir_r4_reference
+  name: FHIR R4 Reference Model
+  description: |
+    HL7 FHIR Release 4 (R4) reference model for healthcare interoperability.
+
+    FHIR (Fast Healthcare Interoperability Resources) is a standard for
+    exchanging healthcare information electronically. R4 is the current
+    normative release used globally.
+
+    This reference model covers 50+ core FHIR resources across:
+    - Administrative: Patient, Practitioner, Organization, Location
+    - Clinical: Condition, Observation, Procedure, MedicationRequest
+    - Financial: Claim, ExplanationOfBenefit, Coverage
+    - Foundation: CodeSystem, ValueSet, StructureDefinition
+
+    Resources are mapped to MDDE entities with proper stereotypes for
+    integration into Data Vault, Dimensional, or 3NF target architectures.
+  version: "4.0.1"
+  layer: conceptual
+
+  metadata:
+    standard: "HL7 FHIR R4"
+    standard_version: "4.0.1"
+    regulatory_frameworks:
+      - HIPAA
+      - HITECH
+      - 21st Century Cures Act
+      - ONC Interoperability Rules
+    industry: healthcare
+    reference_url: "https://hl7.org/fhir/R4/"
+
+  domains:
+    - name: administrative
+      description: Administrative resources (Patient, Practitioner, Organization)
+    - name: clinical
+      description: Clinical resources (Condition, Observation, Procedure)
+    - name: financial
+      description: Financial resources (Claim, Coverage, ExplanationOfBenefit)
+    - name: foundation
+      description: Foundation resources (CodeSystem, ValueSet)
+    - name: workflow
+      description: Workflow resources (Task, Appointment, Schedule)

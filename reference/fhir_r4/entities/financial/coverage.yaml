@@ -1,0 +1,149 @@
+# FHIR R4: Coverage Resource
+# https://hl7.org/fhir/R4/coverage.html
+
+entity:
+  entity_id: fhir_coverage
+  name: Coverage
+  description: |
+    Financial instrument which may be used to reimburse or pay for
+    health care products and services. Includes both insurance and
+    self-payment.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Coverage
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_subscriber_id
+      data_type: string
+      length: 50
+
+    - name: identifier_member_id
+      data_type: string
+      length: 50
+
+    - name: identifier_group_number
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | cancelled | draft | entered-in-error
+
+    - name: type_code
+      data_type: string
+      length: 50
+      description: Type of coverage (group, individual, etc.)
+
+    - name: policy_holder_id
+      data_type: string
+      length: 64
+
+    - name: subscriber_id
+      data_type: string
+      length: 64
+
+    - name: subscriber_patient_id
+      data_type: string
+      length: 64
+
+    - name: beneficiary_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: dependent
+      data_type: string
+      length: 20
+
+    - name: relationship_code
+      data_type: string
+      length: 20
+      description: self | spouse | child | other
+
+    - name: period_start
+      data_type: date
+
+    - name: period_end
+      data_type: date
+
+    - name: payor_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: class_type_code
+      data_type: string
+      length: 50
+      description: Type of class (e.g., group, plan, subplan)
+
+    - name: class_value
+      data_type: string
+      length: 100
+
+    - name: class_name
+      data_type: string
+      length: 255
+
+    - name: order
+      data_type: integer
+      description: Relative order of coverage
+
+    - name: network
+      data_type: string
+      length: 255
+
+    - name: cost_to_beneficiary_type_code
+      data_type: string
+      length: 50
+
+    - name: cost_to_beneficiary_value_quantity
+      data_type: decimal
+      precision: 10
+      scale: 2
+
+    - name: cost_to_beneficiary_value_money
+      data_type: decimal
+      precision: 10
+      scale: 2
+
+    - name: cost_to_beneficiary_exception_type_code
+      data_type: string
+      length: 50
+
+    - name: cost_to_beneficiary_exception_period_start
+      data_type: date
+
+    - name: cost_to_beneficiary_exception_period_end
+      data_type: date
+
+    - name: subrogation
+      data_type: boolean
+
+    - name: contract_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: beneficiary_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: payor_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"

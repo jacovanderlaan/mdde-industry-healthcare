@@ -1,0 +1,83 @@
+entity:
+  name: provider
+  comment: |
+    Healthcare provider entity representing
+    physicians, nurses, and other clinicians.
+attributes:
+  - name: provider_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: provider_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Provider identifier
+  - name: npi
+    data_type: VA10(10)
+    mandatory: false
+    comment: National Provider Identifier
+  - name: first_name
+    data_type: VA100(100)
+    mandatory: true
+    comment: First name
+  - name: last_name
+    data_type: VA100(100)
+    mandatory: true
+    comment: Last name
+  - name: credentials
+    data_type: VA50(50)
+    mandatory: false
+    comment: Credentials (MD, DO, NP, PA, RN)
+  - name: provider_type
+    data_type: VA50(50)
+    mandatory: true
+    comment: Type (Physician, Nurse Practitioner, PA, etc.)
+  - name: specialty
+    data_type: VA100(100)
+    mandatory: false
+    comment: Primary specialty
+  - name: subspecialty
+    data_type: VA100(100)
+    mandatory: false
+    comment: Subspecialty
+  - name: department_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Primary department
+  - name: facility_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Primary facility
+  - name: provider_status
+    data_type: VA20(20)
+    mandatory: true
+    comment: Status (Active, Inactive, On Leave)
+  - name: license_number
+    data_type: VA50(50)
+    mandatory: false
+    comment: Medical license number
+  - name: license_state
+    data_type: VA2(2)
+    mandatory: false
+    comment: License state
+  - name: license_expiration
+    data_type: D
+    mandatory: false
+    comment: License expiration date
+  - name: dea_number
+    data_type: VA20(20)
+    mandatory: false
+    comment: DEA number for prescribing
+  - name: phone
+    data_type: VA20(20)
+    mandatory: false
+    comment: Office phone
+  - name: email
+    data_type: VA100(100)
+    mandatory: false
+    comment: Email address
+  - name: accepting_patients
+    data_type: B
+    mandatory: false
+    comment: Accepting new patients flag

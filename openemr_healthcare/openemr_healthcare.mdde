@@ -1,0 +1,430 @@
+# OpenEMR Healthcare System Demo
+# Demonstrates healthcare regulatory compliance (HIPAA, HL7, ICD-10)
+# Based on OpenEMR open-source electronic health records system
+
+model OpenEMRHealthcare {
+    version: "1.0"
+    description: "Healthcare system with patient records, clinical workflows, and regulatory compliance"
+    domain: "Healthcare"
+    compliance: ["HIPAA", "HL7", "ICD-10", "CPT"]
+}
+
+# Patient Management
+entity Patient {
+    id: string primary key
+    medical_record_number: string unique not null
+    ssn: string encrypted  # PHI - Protected Health Information
+    first_name: string not null
+    last_name: string not null
+    middle_name: string?
+    date_of_birth: date not null
+    gender: enum("M", "F", "O", "U") not null
+    race: string?
+    ethnicity: string?
+    language: string default "en"
+    marital_status: enum("single", "married", "divorced", "widowed", "separated")?
+
+    # Contact Information (PHI)
+    phone_home: string?
+    phone_cell: string?
+    phone_work: string?
+    email: string?
+
+    # Address (PHI)
+    street: string?
+    city: string?
+    state: string?
+    postal_code: string?
+    country: string default "USA"
+
+    # Emergency Contact
+    emergency_contact_name: string?
+    emergency_contact_phone: string?
+    emergency_contact_relationship: string?
+
+    # Insurance & Legal
+    insurance_status: enum("insured", "uninsured", "self-pay") not null
+    deceased: boolean default false
+    deceased_date: datetime?
+
+    # Audit fields
+    created_at: datetime not null
+    updated_at: datetime not null
+    created_by: string not null
+
+    constraints {
+        check age_valid: date_of_birth <= current_date
+        check deceased_logic: deceased = false OR deceased_date is not null
+    }
+}
+
+# Healthcare Providers
+entity Provider {
+    id: string primary key
+    npi: string unique not null  # National Provider Identifier
+    dea_number: string?  # Drug Enforcement Administration
+    license_number: string not null
+    license_state: string not null
+    license_expiry: date not null
+
+    first_name: string not null
+    last_name: string not null
+    credentials: string?  # MD, DO, NP, PA, etc.
+    specialty: string not null
+    subspecialty: string?
+
+    phone: string not null
+    email: string not null
+    active: boolean default true
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Clinical Encounters
+entity Encounter {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+    facility_id: string foreign key -> Facility.id
+
+    encounter_type: enum("office_visit", "emergency", "inpatient", "telehealth", "surgery") not null
+    encounter_date: datetime not null
+    discharge_date: datetime?
+
+    chief_complaint: text?
+    reason_for_visit: text not null
+
+    # Vital Signs
+    temperature: decimal(4,1)?  # Fahrenheit
+    heart_rate: integer?  # bpm
+    blood_pressure_systolic: integer?
+    blood_pressure_diastolic: integer?
+    respiratory_rate: integer?
+    oxygen_saturation: decimal(4,1)?  # percentage
+    weight: decimal(5,2)?  # pounds
+    height: decimal(5,2)?  # inches
+    bmi: decimal(4,1)?  # calculated
+
+    status: enum("scheduled", "arrived", "in_progress", "completed", "cancelled") not null
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Diagnoses (ICD-10 coded)
+entity Diagnosis {
+    id: string primary key
+    encounter_id: string not null foreign key -> Encounter.id
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+
+    icd10_code: string not null  # ICD-10-CM code
+    icd10_description: text not null
+    diagnosis_type: enum("primary", "secondary", "admitting", "discharge") not null
+    onset_date: date?
+    resolution_date: date?
+    status: enum("active", "resolved", "chronic", "rule_out") not null
+
+    clinical_notes: text?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+
+    index idx_icd10 on (icd10_code)
+}
+
+# Procedures (CPT coded)
+entity Procedure {
+    id: string primary key
+    encounter_id: string not null foreign key -> Encounter.id
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+
+    cpt_code: string not null  # CPT code
+    cpt_description: text not null
+    procedure_date: datetime not null
+    duration_minutes: integer?
+
+    status: enum("scheduled", "in_progress", "completed", "cancelled") not null
+    outcome: text?
+    complications: text?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+
+    index idx_cpt on (cpt_code)
+}
+
+# Medications
+entity Medication {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+    encounter_id: string? foreign key -> Encounter.id
+
+    drug_name: string not null
+    ndc_code: string?  # National Drug Code
+    rxnorm_code: string?  # RxNorm concept unique identifier
+
+    dosage: string not null
+    route: enum("oral", "IV", "IM", "subcutaneous", "topical", "inhaled", "rectal") not null
+    frequency: string not null  # e.g., "twice daily", "every 6 hours"
+
+    start_date: date not null
+    end_date: date?
+    refills: integer default 0
+    quantity: decimal(10,2) not null
+
+    prescribing_provider_id: string not null foreign key -> Provider.id
+    pharmacy_notes: text?
+    patient_instructions: text?
+
+    status: enum("active", "discontinued", "completed", "on_hold") not null
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Allergies
+entity Allergy {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+
+    allergen: string not null
+    allergen_type: enum("drug", "food", "environmental", "other") not null
+    reaction: text not null
+    severity: enum("mild", "moderate", "severe", "life_threatening") not null
+
+    onset_date: date?
+    status: enum("active", "resolved", "unconfirmed") not null
+
+    documented_by: string not null foreign key -> Provider.id
+    documented_date: datetime not null
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Lab Results
+entity LabResult {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+    encounter_id: string? foreign key -> Encounter.id
+    ordering_provider_id: string not null foreign key -> Provider.id
+
+    test_name: string not null
+    loinc_code: string?  # LOINC - Logical Observation Identifiers Names and Codes
+
+    result_value: string not null
+    result_unit: string?
+    reference_range: string?
+    abnormal_flag: enum("normal", "low", "high", "critical", "abnormal")?
+
+    specimen_type: string?
+    collection_date: datetime not null
+    result_date: datetime not null
+
+    status: enum("pending", "preliminary", "final", "corrected", "cancelled") not null
+
+    performing_lab: string?
+    notes: text?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+
+    index idx_loinc on (loinc_code)
+}
+
+# Immunizations
+entity Immunization {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+
+    vaccine_name: string not null
+    cvx_code: string?  # CVX - Vaccine Administered code
+    mvx_code: string?  # MVX - Manufacturer code
+
+    administration_date: datetime not null
+    lot_number: string?
+    expiration_date: date?
+    dose_number: integer?
+    dose_series: string?
+
+    route: enum("IM", "subcutaneous", "oral", "intranasal") not null
+    site: enum("left_arm", "right_arm", "left_thigh", "right_thigh", "other")?
+
+    manufacturer: string?
+    reaction: text?
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Insurance
+entity Insurance {
+    id: string primary key
+    patient_id: string not null foreign key -> Patient.id
+
+    insurance_company: string not null
+    policy_number: string not null
+    group_number: string?
+
+    policy_holder_name: string not null
+    policy_holder_relationship: enum("self", "spouse", "child", "other") not null
+    policy_holder_dob: date?
+
+    coverage_type: enum("primary", "secondary", "tertiary") not null
+    effective_date: date not null
+    termination_date: date?
+
+    active: boolean default true
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Facility
+entity Facility {
+    id: string primary key
+    name: string not null
+    facility_type: enum("hospital", "clinic", "emergency", "urgent_care", "surgery_center") not null
+
+    npi: string unique?
+    tax_id: string?
+
+    street: string not null
+    city: string not null
+    state: string not null
+    postal_code: string not null
+    phone: string not null
+
+    active: boolean default true
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Audit Log for HIPAA Compliance
+entity AuditLog {
+    id: string primary key
+    user_id: string not null
+    user_role: string not null
+
+    action: enum("view", "create", "update", "delete", "print", "export") not null
+    resource_type: string not null  # Patient, Encounter, etc.
+    resource_id: string not null
+
+    patient_id: string?  # Track which patient's data was accessed
+
+    ip_address: string?
+    session_id: string?
+
+    timestamp: datetime not null
+    details: json?
+
+    index idx_patient_audit on (patient_id, timestamp)
+    index idx_user_audit on (user_id, timestamp)
+}
+
+# Clinical Notes
+entity ClinicalNote {
+    id: string primary key
+    encounter_id: string not null foreign key -> Encounter.id
+    patient_id: string not null foreign key -> Patient.id
+    provider_id: string not null foreign key -> Provider.id
+
+    note_type: enum("progress_note", "hpi", "consultation", "operative_note", "discharge_summary") not null
+
+    subjective: text?  # SOAP format
+    objective: text?
+    assessment: text?
+    plan: text?
+
+    content: text not null
+
+    signed: boolean default false
+    signed_at: datetime?
+    signed_by: string? foreign key -> Provider.id
+
+    created_at: datetime not null
+    updated_at: datetime not null
+}
+
+# Relationships
+relationship PatientEncounters {
+    Patient.id -> Encounter.patient_id
+    cardinality: one_to_many
+}
+
+relationship ProviderEncounters {
+    Provider.id -> Encounter.provider_id
+    cardinality: one_to_many
+}
+
+relationship EncounterDiagnoses {
+    Encounter.id -> Diagnosis.encounter_id
+    cardinality: one_to_many
+}
+
+relationship EncounterProcedures {
+    Encounter.id -> Procedure.encounter_id
+    cardinality: one_to_many
+}
+
+relationship PatientMedications {
+    Patient.id -> Medication.patient_id
+    cardinality: one_to_many
+}
+
+relationship PatientAllergies {
+    Patient.id -> Allergy.patient_id
+    cardinality: one_to_many
+}
+
+relationship PatientLabResults {
+    Patient.id -> LabResult.patient_id
+    cardinality: one_to_many
+}
+
+relationship PatientImmunizations {
+    Patient.id -> Immunization.patient_id
+    cardinality: one_to_many
+}
+
+relationship PatientInsurance {
+    Patient.id -> Insurance.patient_id
+    cardinality: one_to_many
+}
+
+# Business Rules for Healthcare Compliance
+rule HIPAA_MinimumNecessary {
+    description: "Access to PHI should be limited to minimum necessary"
+    when: "accessing patient data"
+    then: "log access in AuditLog and verify user authorization"
+}
+
+rule RequireSignedNotes {
+    description: "Clinical notes must be signed by provider"
+    applies_to: ClinicalNote
+    condition: signed = true AND signed_by is not null
+}
+
+rule ActiveMedication_EndDate {
+    description: "Active medications should not have end dates in the past"
+    applies_to: Medication
+    condition: status = 'active' IMPLIES (end_date is null OR end_date >= current_date)
+}
+
+rule ValidEncounterDates {
+    description: "Discharge date must be after encounter date"
+    applies_to: Encounter
+    condition: discharge_date is null OR discharge_date >= encounter_date
+}
+
+rule ValidLicense {
+    description: "Provider license must not be expired"
+    applies_to: Provider
+    condition: active = true IMPLIES license_expiry > current_date
+}

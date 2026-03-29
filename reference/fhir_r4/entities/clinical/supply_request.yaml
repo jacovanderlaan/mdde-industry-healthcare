@@ -1,0 +1,152 @@
+# FHIR R4: SupplyRequest Resource
+# https://hl7.org/fhir/R4/supplyrequest.html
+
+entity:
+  entity_id: fhir_supply_request
+  name: SupplyRequest
+  description: |
+    A record of a request for a medication, substance or device
+    used in the healthcare setting.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: SupplyRequest
+    maturity_level: 2
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      description: draft | active | suspended | cancelled | completed | entered-in-error | unknown
+
+    - name: category_code
+      data_type: string
+      length: 50
+
+    - name: priority
+      data_type: string
+      length: 20
+      description: routine | urgent | asap | stat
+
+    - name: item_codeable_concept_code
+      data_type: string
+      length: 50
+
+    - name: item_codeable_concept_display
+      data_type: string
+      length: 255
+
+    - name: item_reference_id
+      data_type: string
+      length: 64
+
+    - name: quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+      not_null: true
+
+    - name: quantity_unit
+      data_type: string
+      length: 50
+
+    - name: parameter_code
+      data_type: string
+      length: 50
+
+    - name: parameter_value_codeable_concept_code
+      data_type: string
+      length: 50
+
+    - name: parameter_value_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: parameter_value_range_low
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: parameter_value_range_high
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: parameter_value_boolean
+      data_type: boolean
+
+    - name: occurrence_date_time
+      data_type: timestamp
+
+    - name: occurrence_period_start
+      data_type: timestamp
+
+    - name: occurrence_period_end
+      data_type: timestamp
+
+    - name: occurrence_timing
+      data_type: string
+      length: 500
+
+    - name: authored_on
+      data_type: timestamp
+
+    - name: requester_id
+      data_type: string
+      length: 64
+
+    - name: supplier_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: deliver_from_id
+      data_type: string
+      length: 64
+
+    - name: deliver_to_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: requester_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: supplier_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: deliver_from_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: deliver_to_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"

@@ -1,0 +1,180 @@
+# FHIR R4: ImagingStudy Resource
+# https://hl7.org/fhir/R4/imagingstudy.html
+
+entity:
+  entity_id: fhir_imaging_study
+  name: ImagingStudy
+  description: |
+    Representation of the content produced in a DICOM imaging study.
+    A study comprises a set of series, each of which includes a set
+    of Service-Object Pair Instances (SOP Instances).
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: ImagingStudy
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_accession
+      data_type: string
+      length: 50
+
+    - name: identifier_study_uid
+      data_type: string
+      length: 100
+      description: DICOM Study Instance UID
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: registered | available | cancelled | entered-in-error | unknown
+
+    - name: modality_code
+      data_type: string
+      length: 20
+      description: CT, MR, US, XR, etc.
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: started
+      data_type: timestamp
+
+    - name: based_on_service_request_id
+      data_type: string
+      length: 64
+
+    - name: referrer_id
+      data_type: string
+      length: 64
+
+    - name: interpreter_id
+      data_type: string
+      length: 64
+
+    - name: endpoint_url
+      data_type: string
+      length: 255
+
+    - name: number_of_series
+      data_type: integer
+
+    - name: number_of_instances
+      data_type: integer
+
+    - name: procedure_reference_id
+      data_type: string
+      length: 64
+
+    - name: procedure_code
+      data_type: string
+      length: 50
+
+    - name: location_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: description
+      data_type: string
+      length: 1000
+
+    - name: series_uid
+      data_type: string
+      length: 100
+
+    - name: series_number
+      data_type: integer
+
+    - name: series_modality_code
+      data_type: string
+      length: 20
+
+    - name: series_description
+      data_type: string
+      length: 255
+
+    - name: series_number_of_instances
+      data_type: integer
+
+    - name: series_body_site_code
+      data_type: string
+      length: 50
+
+    - name: series_laterality_code
+      data_type: string
+      length: 20
+
+    - name: series_specimen_id
+      data_type: string
+      length: 64
+
+    - name: series_started
+      data_type: timestamp
+
+    - name: series_performer_actor_id
+      data_type: string
+      length: 64
+
+    - name: series_performer_function_code
+      data_type: string
+      length: 50
+
+    - name: instance_uid
+      data_type: string
+      length: 100
+
+    - name: instance_sop_class_code
+      data_type: string
+      length: 50
+
+    - name: instance_number
+      data_type: integer
+
+    - name: instance_title
+      data_type: string
+      length: 255
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"

@@ -1,0 +1,138 @@
+# FHIR R4: Location Resource
+# https://hl7.org/fhir/R4/location.html
+
+entity:
+  entity_id: fhir_location
+  name: Location
+  description: |
+    Details and position information for a physical place where services
+    are provided and resources and participants may be stored, found,
+    contained, or accommodated.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Location
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      description: active | suspended | inactive
+
+    - name: operational_status_code
+      data_type: string
+      length: 20
+      description: Operational status (e.g., occupied, housekeeping)
+
+    - name: name
+      data_type: string
+      length: 255
+      not_null: true
+
+    - name: alias
+      data_type: string
+      length: 255
+
+    - name: description
+      data_type: string
+      length: 1000
+
+    - name: mode
+      data_type: string
+      length: 20
+      description: instance | kind
+
+    - name: type_code
+      data_type: string
+      length: 50
+      description: Type of location (e.g., room, bed, area)
+
+    - name: telecom_phone
+      data_type: string
+      length: 30
+
+    - name: address_line
+      data_type: string
+      length: 255
+
+    - name: address_city
+      data_type: string
+      length: 100
+
+    - name: address_state
+      data_type: string
+      length: 50
+
+    - name: address_postal_code
+      data_type: string
+      length: 20
+
+    - name: address_country
+      data_type: string
+      length: 50
+
+    - name: physical_type_code
+      data_type: string
+      length: 50
+      description: Physical form (e.g., building, floor, room)
+
+    - name: position_longitude
+      data_type: decimal
+      precision: 11
+      scale: 8
+
+    - name: position_latitude
+      data_type: decimal
+      precision: 10
+      scale: 8
+
+    - name: position_altitude
+      data_type: decimal
+      precision: 10
+      scale: 2
+
+    - name: managing_organization_id
+      data_type: string
+      length: 64
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+      description: Parent location
+
+    - name: hours_of_operation
+      data_type: string
+      length: 500
+      description: JSON array of available times
+
+    - name: availability_exceptions
+      data_type: string
+      length: 500
+      description: Special availability notes
+
+  relationships:
+    - from: managing_organization_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: part_of_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"

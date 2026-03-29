@@ -1,0 +1,157 @@
+# FHIR R4: Appointment Resource
+# https://hl7.org/fhir/R4/appointment.html
+
+entity:
+  entity_id: fhir_appointment
+  name: Appointment
+  description: |
+    A booking of a healthcare event among patient(s), practitioner(s),
+    related person(s) and/or device(s) for a specific date/time.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Appointment
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: proposed | pending | booked | arrived | fulfilled | cancelled | noshow | entered-in-error | checked-in | waitlist
+
+    - name: cancellation_reason_code
+      data_type: string
+      length: 50
+
+    - name: service_category_code
+      data_type: string
+      length: 50
+
+    - name: service_type_code
+      data_type: string
+      length: 50
+
+    - name: specialty_code
+      data_type: string
+      length: 50
+
+    - name: appointment_type_code
+      data_type: string
+      length: 50
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: priority
+      data_type: integer
+
+    - name: description
+      data_type: string
+      length: 1000
+
+    - name: supporting_information_id
+      data_type: string
+      length: 64
+
+    - name: start
+      data_type: timestamp
+
+    - name: end
+      data_type: timestamp
+
+    - name: minutes_duration
+      data_type: integer
+
+    - name: slot_id
+      data_type: string
+      length: 64
+
+    - name: created
+      data_type: timestamp
+
+    - name: comment
+      data_type: string
+      length: 2000
+
+    - name: patient_instruction
+      data_type: string
+      length: 1000
+
+    - name: based_on_service_request_id
+      data_type: string
+      length: 64
+
+    - name: participant_actor_patient_id
+      data_type: string
+      length: 64
+
+    - name: participant_actor_practitioner_id
+      data_type: string
+      length: 64
+
+    - name: participant_actor_location_id
+      data_type: string
+      length: 64
+
+    - name: participant_type_code
+      data_type: string
+      length: 50
+
+    - name: participant_required
+      data_type: string
+      length: 20
+      description: required | optional | information-only
+
+    - name: participant_status
+      data_type: string
+      length: 20
+      not_null: true
+      description: accepted | declined | tentative | needs-action
+
+    - name: participant_period_start
+      data_type: timestamp
+
+    - name: participant_period_end
+      data_type: timestamp
+
+    - name: requested_period_start
+      data_type: timestamp
+
+    - name: requested_period_end
+      data_type: timestamp
+
+  relationships:
+    - from: participant_actor_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: participant_actor_practitioner_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: participant_actor_location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"

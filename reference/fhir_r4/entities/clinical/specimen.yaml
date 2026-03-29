@@ -1,0 +1,180 @@
+# FHIR R4: Specimen Resource
+# https://hl7.org/fhir/R4/specimen.html
+
+entity:
+  entity_id: fhir_specimen
+  name: Specimen
+  description: |
+    A sample to be used for analysis. Represents physical samples
+    collected from patients for laboratory testing.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Specimen
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_accession
+      data_type: string
+      length: 50
+
+    - name: accession_identifier
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      description: available | unavailable | unsatisfactory | entered-in-error
+
+    - name: type_code
+      data_type: string
+      length: 50
+      description: Type of specimen (blood, urine, etc.)
+
+    - name: type_display
+      data_type: string
+      length: 100
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+
+    - name: received_time
+      data_type: timestamp
+
+    - name: parent_specimen_id
+      data_type: string
+      length: 64
+
+    - name: request_service_request_id
+      data_type: string
+      length: 64
+
+    - name: collection_collector_id
+      data_type: string
+      length: 64
+
+    - name: collection_collected_date_time
+      data_type: timestamp
+
+    - name: collection_collected_period_start
+      data_type: timestamp
+
+    - name: collection_collected_period_end
+      data_type: timestamp
+
+    - name: collection_duration_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: collection_duration_unit
+      data_type: string
+      length: 50
+
+    - name: collection_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: collection_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: collection_method_code
+      data_type: string
+      length: 50
+
+    - name: collection_body_site_code
+      data_type: string
+      length: 50
+
+    - name: collection_fasting_status_code
+      data_type: string
+      length: 50
+
+    - name: processing_description
+      data_type: string
+      length: 500
+
+    - name: processing_procedure_code
+      data_type: string
+      length: 50
+
+    - name: processing_additive_id
+      data_type: string
+      length: 64
+
+    - name: processing_time_date_time
+      data_type: timestamp
+
+    - name: processing_time_period_start
+      data_type: timestamp
+
+    - name: processing_time_period_end
+      data_type: timestamp
+
+    - name: container_identifier
+      data_type: string
+      length: 50
+
+    - name: container_description
+      data_type: string
+      length: 255
+
+    - name: container_type_code
+      data_type: string
+      length: 50
+
+    - name: container_capacity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: container_capacity_unit
+      data_type: string
+      length: 50
+
+    - name: container_specimen_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: container_specimen_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: container_additive_code
+      data_type: string
+      length: 50
+
+    - name: condition_code
+      data_type: string
+      length: 50
+      description: State of specimen (hemolyzed, lipemic, etc.)
+
+    - name: note
+      data_type: string
+      length: 2000
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: parent_specimen_id
+      to: fhir_specimen.id
+      type: fk
+      cardinality: "N:1"

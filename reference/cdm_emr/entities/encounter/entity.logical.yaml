@@ -1,0 +1,91 @@
+entity:
+  name: encounter
+  comment: |
+    Healthcare encounter/visit entity representing
+    patient interactions with healthcare providers.
+attributes:
+  - name: encounter_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: encounter_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Encounter identifier
+  - name: patient_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Patient ID
+  - name: encounter_type
+    data_type: VA30(30)
+    mandatory: true
+    comment: Type (Inpatient, Outpatient, Emergency, Telehealth)
+  - name: encounter_class
+    data_type: VA30(30)
+    mandatory: false
+    comment: Class (AMB, EMER, IMP, OBSENC, PRENC)
+  - name: encounter_status
+    data_type: VA30(30)
+    mandatory: true
+    comment: Status (Planned, Arrived, In Progress, Finished, Cancelled)
+  - name: admission_date
+    data_type: TS
+    mandatory: true
+    comment: Admission/start datetime
+  - name: discharge_date
+    data_type: TS
+    mandatory: false
+    comment: Discharge/end datetime
+  - name: length_of_stay_days
+    data_type: INT
+    mandatory: false
+    comment: Length of stay in days
+  - name: facility_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Facility ID
+  - name: department_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Department ID
+  - name: attending_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Attending provider ID
+  - name: admitting_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Admitting provider ID
+  - name: referring_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Referring provider ID
+  - name: primary_diagnosis_code
+    data_type: VA20(20)
+    mandatory: false
+    comment: Primary diagnosis code
+  - name: admission_source
+    data_type: VA30(30)
+    mandatory: false
+    comment: Admission source (ER, Transfer, Referral)
+  - name: discharge_disposition
+    data_type: VA30(30)
+    mandatory: false
+    comment: Discharge disposition
+  - name: service_type
+    data_type: VA50(50)
+    mandatory: false
+    comment: Service type
+  - name: priority
+    data_type: VA20(20)
+    mandatory: false
+    comment: Priority (Elective, Emergency, Urgent)
+  - name: reason_code
+    data_type: VA20(20)
+    mandatory: false
+    comment: Reason for encounter code
+  - name: reason_description
+    data_type: VA500(500)
+    mandatory: false
+    comment: Reason description

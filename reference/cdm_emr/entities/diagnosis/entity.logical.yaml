@@ -1,0 +1,79 @@
+entity:
+  name: diagnosis
+  comment: |
+    Patient diagnosis entity for conditions,
+    problems, and disease coding.
+attributes:
+  - name: diagnosis_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: diagnosis_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Diagnosis record ID
+  - name: patient_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Patient ID
+  - name: encounter_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Related encounter ID
+  - name: diagnosis_code
+    data_type: VA20(20)
+    mandatory: true
+    comment: ICD-10 diagnosis code
+  - name: diagnosis_description
+    data_type: VA500(500)
+    mandatory: true
+    comment: Diagnosis description
+  - name: diagnosis_type
+    data_type: VA30(30)
+    mandatory: false
+    comment: Type (Principal, Secondary, Admitting, POA)
+  - name: diagnosis_status
+    data_type: VA30(30)
+    mandatory: true
+    comment: Status (Active, Resolved, Inactive)
+  - name: coding_system
+    data_type: VA20(20)
+    mandatory: false
+    comment: Coding system (ICD-10-CM, SNOMED)
+  - name: onset_date
+    data_type: D
+    mandatory: false
+    comment: Onset date
+  - name: diagnosis_date
+    data_type: D
+    mandatory: true
+    comment: Diagnosis date
+  - name: resolution_date
+    data_type: D
+    mandatory: false
+    comment: Resolution date
+  - name: diagnosing_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Diagnosing provider ID
+  - name: severity
+    data_type: VA20(20)
+    mandatory: false
+    comment: Severity (Mild, Moderate, Severe)
+  - name: is_chronic
+    data_type: B
+    mandatory: false
+    comment: Chronic condition flag
+  - name: is_poa
+    data_type: B
+    mandatory: false
+    comment: Present on admission flag
+  - name: rank_order
+    data_type: INT
+    mandatory: false
+    comment: Diagnosis ranking/priority
+  - name: clinical_notes
+    data_type: VA2000(2000)
+    mandatory: false
+    comment: Clinical notes

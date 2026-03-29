@@ -1,0 +1,204 @@
+# FHIR R4: Task Resource
+# https://hl7.org/fhir/R4/task.html
+
+entity:
+  entity_id: fhir_task
+  name: Task
+  description: |
+    A task to be performed. Represents an activity that can be performed,
+    and tracks the state of completion.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Task
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: instantiates_canonical
+      data_type: string
+      length: 255
+
+    - name: instantiates_uri
+      data_type: string
+      length: 255
+
+    - name: based_on_id
+      data_type: string
+      length: 64
+
+    - name: group_identifier
+      data_type: string
+      length: 64
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: draft | requested | received | accepted | rejected | ready | cancelled | in-progress | on-hold | failed | completed | entered-in-error
+
+    - name: status_reason_code
+      data_type: string
+      length: 50
+
+    - name: business_status_code
+      data_type: string
+      length: 50
+
+    - name: intent
+      data_type: string
+      length: 20
+      not_null: true
+      description: unknown | proposal | plan | order | original-order | reflex-order | filler-order | instance-order | option
+
+    - name: priority
+      data_type: string
+      length: 20
+      description: routine | urgent | asap | stat
+
+    - name: code_code
+      data_type: string
+      length: 50
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: description
+      data_type: string
+      length: 1000
+
+    - name: focus_id
+      data_type: string
+      length: 64
+
+    - name: for_patient_id
+      data_type: string
+      length: 64
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: execution_period_start
+      data_type: timestamp
+
+    - name: execution_period_end
+      data_type: timestamp
+
+    - name: authored_on
+      data_type: timestamp
+
+    - name: last_modified
+      data_type: timestamp
+
+    - name: requester_id
+      data_type: string
+      length: 64
+
+    - name: performer_type_code
+      data_type: string
+      length: 50
+
+    - name: owner_id
+      data_type: string
+      length: 64
+
+    - name: location_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_id
+      data_type: string
+      length: 64
+
+    - name: insurance_id
+      data_type: string
+      length: 64
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: relevant_history_id
+      data_type: string
+      length: 64
+
+    - name: restriction_repetitions
+      data_type: integer
+
+    - name: restriction_period_start
+      data_type: timestamp
+
+    - name: restriction_period_end
+      data_type: timestamp
+
+    - name: restriction_recipient_id
+      data_type: string
+      length: 64
+
+    - name: input_type_code
+      data_type: string
+      length: 50
+
+    - name: input_value_string
+      data_type: string
+      length: 2000
+
+    - name: input_value_reference_id
+      data_type: string
+      length: 64
+
+    - name: output_type_code
+      data_type: string
+      length: 50
+
+    - name: output_value_string
+      data_type: string
+      length: 2000
+
+    - name: output_value_reference_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: for_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: part_of_id
+      to: fhir_task.id
+      type: fk
+      cardinality: "N:1"

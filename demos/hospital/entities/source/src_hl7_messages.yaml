@@ -1,0 +1,235 @@
+entity:
+  entity_id: src_hl7_messages
+  name: HL7 Message Feed
+  description: |
+    HL7 v2.x messages including ADT (Admit/Discharge/Transfer),
+    ORU (Observation Results), and ORM (Orders) messages.
+  stereotype: src_external
+  layer: source
+
+  source_system:
+    name: InterfaceEngine
+    type: message_queue
+    connection: HL7_QUEUE
+    schedule: "real-time"
+    format: hl7_v2
+
+  hl7_mapping:
+    versions: ["2.3", "2.4", "2.5"]
+    message_types: [ADT, ORU, ORM]
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_name, dob, mrn, account_number]
+
+  attributes:
+    # Message Header (MSH)
+    - name: message_id
+      data_type: string
+      length: 50
+      description: Unique message control ID
+      business_key: true
+      hl7_segment: MSH-10
+
+    - name: message_type
+      data_type: string
+      length: 10
+      description: Message type (ADT, ORU, ORM)
+      hl7_segment: MSH-9.1
+
+    - name: trigger_event
+      data_type: string
+      length: 10
+      description: Trigger event (A01, A02, R01, etc.)
+      hl7_segment: MSH-9.2
+
+    - name: sending_facility
+      data_type: string
+      length: 50
+      description: Sending facility code
+      hl7_segment: MSH-4
+
+    - name: receiving_facility
+      data_type: string
+      length: 50
+      description: Receiving facility code
+      hl7_segment: MSH-6
+
+    - name: message_datetime
+      data_type: timestamp
+      description: Message date/time
+      hl7_segment: MSH-7
+
+    - name: hl7_version
+      data_type: string
+      length: 10
+      description: HL7 version
+      hl7_segment: MSH-12
+
+    # Patient Identification (PID)
+    - name: patient_id
+      data_type: string
+      length: 36
+      description: Patient internal ID
+      hl7_segment: PID-3
+
+    - name: mrn
+      data_type: string
+      length: 20
+      description: Medical Record Number
+      tags: [phi, hipaa_covered]
+      hl7_segment: PID-3.1
+
+    - name: patient_name
+      data_type: string
+      length: 100
+      description: Patient full name
+      tags: [phi, pii]
+      hl7_segment: PID-5
+
+    - name: birth_date
+      data_type: date
+      description: Date of birth
+      tags: [phi]
+      hl7_segment: PID-7
+
+    - name: gender
+      data_type: string
+      length: 1
+      description: Administrative sex (M, F, O, U)
+      hl7_segment: PID-8
+
+    - name: account_number
+      data_type: string
+      length: 20
+      nullable: true
+      description: Patient account number
+      tags: [phi]
+      hl7_segment: PID-18
+
+    # Visit Information (PV1)
+    - name: visit_number
+      data_type: string
+      length: 20
+      nullable: true
+      description: Visit/Encounter number
+      hl7_segment: PV1-19
+
+    - name: patient_class
+      data_type: string
+      length: 10
+      nullable: true
+      description: Patient class (I=Inpatient, O=Outpatient, E=Emergency)
+      hl7_segment: PV1-2
+
+    - name: admission_type
+      data_type: string
+      length: 10
+      nullable: true
+      description: Admission type
+      hl7_segment: PV1-4
+
+    - name: admit_datetime
+      data_type: timestamp
+      nullable: true
+      description: Admission date/time
+      hl7_segment: PV1-44
+
+    - name: discharge_datetime
+      data_type: timestamp
+      nullable: true
+      description: Discharge date/time
+      hl7_segment: PV1-45
+
+    - name: attending_doctor_id
+      data_type: string
+      length: 20
+      nullable: true
+      description: Attending physician ID
+      hl7_segment: PV1-7
+
+    - name: location
+      data_type: string
+      length: 50
+      nullable: true
+      description: Patient location (unit/room/bed)
+      hl7_segment: PV1-3
+
+    # Observation Results (OBX) - for ORU messages
+    - name: observation_id
+      data_type: string
+      length: 50
+      nullable: true
+      description: Observation identifier (LOINC code)
+      tags: [clinical]
+      hl7_segment: OBX-3
+
+    - name: observation_value
+      data_type: string
+      length: 500
+      nullable: true
+      description: Observation value
+      tags: [clinical, phi]
+      hl7_segment: OBX-5
+
+    - name: observation_units
+      data_type: string
+      length: 20
+      nullable: true
+      description: Units of measure
+      hl7_segment: OBX-6
+
+    - name: observation_datetime
+      data_type: timestamp
+      nullable: true
+      description: Observation date/time
+      hl7_segment: OBX-14
+
+    - name: abnormal_flag
+      data_type: string
+      length: 5
+      nullable: true
+      description: Abnormal flag (H, L, A, etc.)
+      tags: [clinical]
+      hl7_segment: OBX-8
+
+    # Processing Metadata
+    - name: raw_message
+      data_type: string
+      length: 65535
+      description: Raw HL7 message content
+      tags: [phi]
+      security:
+        encrypted: true
+
+    - name: processing_status
+      data_type: string
+      length: 20
+      description: Processing status (RECEIVED, PARSED, ERROR)
+
+    - name: error_message
+      data_type: string
+      length: 500
+      nullable: true
+      description: Processing error message if any
+
+    - name: received_ts
+      data_type: timestamp
+      description: Message received timestamp
+
+  quality_rules:
+    - rule_id: hl7_001
+      name: Valid Message Type
+      expression: "message_type IN ('ADT', 'ORU', 'ORM', 'SIU', 'RDE')"
+      severity: error
+
+    - rule_id: hl7_002
+      name: Required Patient ID
+      expression: "patient_id IS NOT NULL OR mrn IS NOT NULL"
+      severity: error
+
+    - rule_id: hl7_003
+      name: Valid Gender Code
+      expression: "gender IS NULL OR gender IN ('M', 'F', 'O', 'U')"
+      severity: warning

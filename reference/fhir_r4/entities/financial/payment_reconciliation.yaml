@@ -1,0 +1,151 @@
+# FHIR R4: PaymentReconciliation Resource
+# https://hl7.org/fhir/R4/paymentreconciliation.html
+
+entity:
+  entity_id: fhir_payment_reconciliation
+  name: PaymentReconciliation
+  description: |
+    This resource provides the details including amount of a payment
+    and allocates the payment items being paid.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: PaymentReconciliation
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_payment_number
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | cancelled | draft | entered-in-error
+
+    - name: period_start
+      data_type: date
+
+    - name: period_end
+      data_type: date
+
+    - name: created
+      data_type: timestamp
+      not_null: true
+
+    - name: payment_issuer_id
+      data_type: string
+      length: 64
+
+    - name: request_id
+      data_type: string
+      length: 64
+
+    - name: requestor_id
+      data_type: string
+      length: 64
+
+    - name: outcome
+      data_type: string
+      length: 20
+      description: queued | complete | error | partial
+
+    - name: disposition
+      data_type: string
+      length: 500
+
+    - name: payment_date
+      data_type: date
+      not_null: true
+
+    - name: payment_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+      not_null: true
+
+    - name: payment_amount_currency
+      data_type: string
+      length: 3
+
+    - name: payment_identifier
+      data_type: string
+      length: 100
+
+    - name: detail_identifier
+      data_type: string
+      length: 50
+
+    - name: detail_predecessor
+      data_type: string
+      length: 50
+
+    - name: detail_type_code
+      data_type: string
+      length: 50
+
+    - name: detail_request_id
+      data_type: string
+      length: 64
+
+    - name: detail_submitter_id
+      data_type: string
+      length: 64
+
+    - name: detail_response_id
+      data_type: string
+      length: 64
+
+    - name: detail_date
+      data_type: date
+
+    - name: detail_responsible_id
+      data_type: string
+      length: 64
+
+    - name: detail_payee_id
+      data_type: string
+      length: 64
+
+    - name: detail_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: detail_amount_currency
+      data_type: string
+      length: 3
+
+    - name: form_code
+      data_type: string
+      length: 50
+
+    - name: process_note_type
+      data_type: string
+      length: 20
+
+    - name: process_note_text
+      data_type: string
+      length: 2000
+
+  relationships:
+    - from: payment_issuer_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: requestor_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"

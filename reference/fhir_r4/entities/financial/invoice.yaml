@@ -1,0 +1,159 @@
+# FHIR R4: Invoice Resource
+# https://hl7.org/fhir/R4/invoice.html
+
+entity:
+  entity_id: fhir_invoice
+  name: Invoice
+  description: |
+    Invoice containing collected ChargeItems from an Account with
+    calculated individual and total price for Billing purpose.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Invoice
+    maturity_level: 2
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_invoice_number
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: draft | issued | balanced | cancelled | entered-in-error
+
+    - name: cancelled_reason
+      data_type: string
+      length: 500
+
+    - name: type_code
+      data_type: string
+      length: 50
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+
+    - name: recipient_id
+      data_type: string
+      length: 64
+
+    - name: date
+      data_type: timestamp
+
+    - name: participant_role_code
+      data_type: string
+      length: 50
+
+    - name: participant_actor_id
+      data_type: string
+      length: 64
+
+    - name: issuer_id
+      data_type: string
+      length: 64
+
+    - name: account_id
+      data_type: string
+      length: 64
+
+    - name: line_item_sequence
+      data_type: integer
+
+    - name: line_item_charge_item_reference_id
+      data_type: string
+      length: 64
+
+    - name: line_item_charge_item_code
+      data_type: string
+      length: 50
+
+    - name: line_item_price_component_type
+      data_type: string
+      length: 20
+      description: base | surcharge | deduction | discount | tax | informational
+
+    - name: line_item_price_component_code
+      data_type: string
+      length: 50
+
+    - name: line_item_price_component_factor
+      data_type: decimal
+      precision: 8
+      scale: 4
+
+    - name: line_item_price_component_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: line_item_price_component_amount_currency
+      data_type: string
+      length: 3
+
+    - name: total_price_component_type
+      data_type: string
+      length: 20
+
+    - name: total_price_component_code
+      data_type: string
+      length: 50
+
+    - name: total_price_component_amount_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: total_net_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: total_net_currency
+      data_type: string
+      length: 3
+
+    - name: total_gross_value
+      data_type: decimal
+      precision: 12
+      scale: 2
+
+    - name: total_gross_currency
+      data_type: string
+      length: 3
+
+    - name: payment_terms
+      data_type: string
+      length: 1000
+
+    - name: note
+      data_type: string
+      length: 2000
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: issuer_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: account_id
+      to: fhir_account.id
+      type: fk
+      cardinality: "N:1"

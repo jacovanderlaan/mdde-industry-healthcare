@@ -1,0 +1,117 @@
+# FHIR R4: EpisodeOfCare Resource
+# https://hl7.org/fhir/R4/episodeofcare.html
+
+entity:
+  entity_id: fhir_episode_of_care
+  name: EpisodeOfCare
+  description: |
+    An association between a patient and an organization / healthcare
+    provider(s) during which time encounters may occur.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: EpisodeOfCare
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: planned | waitlist | active | onhold | finished | cancelled | entered-in-error
+
+    - name: status_history_status
+      data_type: string
+      length: 20
+
+    - name: status_history_period_start
+      data_type: timestamp
+
+    - name: status_history_period_end
+      data_type: timestamp
+
+    - name: type_code
+      data_type: string
+      length: 50
+
+    - name: diagnosis_condition_id
+      data_type: string
+      length: 64
+
+    - name: diagnosis_role_code
+      data_type: string
+      length: 50
+
+    - name: diagnosis_rank
+      data_type: integer
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: managing_organization_id
+      data_type: string
+      length: 64
+
+    - name: period_start
+      data_type: timestamp
+
+    - name: period_end
+      data_type: timestamp
+
+    - name: referral_request_id
+      data_type: string
+      length: 64
+
+    - name: care_manager_id
+      data_type: string
+      length: 64
+
+    - name: team_id
+      data_type: string
+      length: 64
+
+    - name: account_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: managing_organization_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: diagnosis_condition_id
+      to: fhir_condition.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: care_manager_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: team_id
+      to: fhir_care_team.id
+      type: fk
+      cardinality: "N:1"

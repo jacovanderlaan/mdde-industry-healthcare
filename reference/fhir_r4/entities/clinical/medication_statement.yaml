@@ -1,0 +1,192 @@
+# FHIR R4: MedicationStatement Resource
+# https://hl7.org/fhir/R4/medicationstatement.html
+
+entity:
+  entity_id: fhir_medication_statement
+  name: MedicationStatement
+  description: |
+    A record of a medication that is being consumed by a patient.
+    May indicate that the patient reported taking medication themselves,
+    or that the clinician observed that patient is taking.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: MedicationStatement
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: based_on_id
+      data_type: string
+      length: 64
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: active | completed | entered-in-error | intended | stopped | on-hold | unknown | not-taken
+
+    - name: status_reason_code
+      data_type: string
+      length: 50
+
+    - name: category_code
+      data_type: string
+      length: 50
+
+    - name: medication_code
+      data_type: string
+      length: 50
+
+    - name: medication_display
+      data_type: string
+      length: 255
+
+    - name: medication_reference_id
+      data_type: string
+      length: 64
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: context_encounter_id
+      data_type: string
+      length: 64
+
+    - name: effective_date_time
+      data_type: timestamp
+
+    - name: effective_period_start
+      data_type: timestamp
+
+    - name: effective_period_end
+      data_type: timestamp
+
+    - name: date_asserted
+      data_type: timestamp
+
+    - name: information_source_id
+      data_type: string
+      length: 64
+
+    - name: derived_from_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: dosage_text
+      data_type: string
+      length: 500
+
+    - name: dosage_timing
+      data_type: string
+      length: 500
+
+    - name: dosage_as_needed_boolean
+      data_type: boolean
+
+    - name: dosage_as_needed_code
+      data_type: string
+      length: 50
+
+    - name: dosage_site_code
+      data_type: string
+      length: 50
+
+    - name: dosage_route_code
+      data_type: string
+      length: 50
+
+    - name: dosage_method_code
+      data_type: string
+      length: 50
+
+    - name: dosage_dose_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_dose_quantity_unit
+      data_type: string
+      length: 50
+
+    - name: dosage_dose_range_low
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_dose_range_high
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_rate_ratio_numerator
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_rate_ratio_denominator
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_max_dose_per_period
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_max_dose_per_administration
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: dosage_max_dose_per_lifetime
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: context_encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: medication_reference_id
+      to: fhir_medication.id
+      type: fk
+      cardinality: "N:1"

@@ -1,0 +1,130 @@
+# FHIR R4: Medication Resource
+# https://hl7.org/fhir/R4/medication.html
+
+entity:
+  entity_id: fhir_medication
+  name: Medication
+  description: |
+    This resource is primarily used for the identification and definition
+    of a medication for the purposes of prescribing, dispensing, and
+    administering a medication.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Medication
+    maturity_level: 4
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_ndc
+      data_type: string
+      length: 20
+      description: National Drug Code
+
+    - name: identifier_rxnorm
+      data_type: string
+      length: 20
+
+    - name: code_system
+      data_type: string
+      length: 100
+
+    - name: code_code
+      data_type: string
+      length: 50
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: status
+      data_type: string
+      length: 20
+      description: active | inactive | entered-in-error
+
+    - name: manufacturer_id
+      data_type: string
+      length: 64
+
+    - name: form_code
+      data_type: string
+      length: 50
+      description: Dose form (tablet, capsule, etc.)
+
+    - name: form_display
+      data_type: string
+      length: 100
+
+    - name: amount_numerator_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: amount_numerator_unit
+      data_type: string
+      length: 50
+
+    - name: amount_denominator_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: amount_denominator_unit
+      data_type: string
+      length: 50
+
+    - name: ingredient_item_code
+      data_type: string
+      length: 50
+
+    - name: ingredient_item_display
+      data_type: string
+      length: 255
+
+    - name: ingredient_item_reference_id
+      data_type: string
+      length: 64
+
+    - name: ingredient_is_active
+      data_type: boolean
+
+    - name: ingredient_strength_numerator_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: ingredient_strength_numerator_unit
+      data_type: string
+      length: 50
+
+    - name: ingredient_strength_denominator_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: ingredient_strength_denominator_unit
+      data_type: string
+      length: 50
+
+    - name: batch_lot_number
+      data_type: string
+      length: 50
+
+    - name: batch_expiration_date
+      data_type: timestamp
+
+  relationships:
+    - from: manufacturer_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"

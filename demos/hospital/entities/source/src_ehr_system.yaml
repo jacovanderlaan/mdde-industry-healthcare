@@ -1,0 +1,186 @@
+entity:
+  entity_id: src_ehr_system
+  name: EHR System Feed
+  description: |
+    Raw patient and encounter data from the Electronic Health Record
+    system. Maps to FHIR Patient and Encounter resources.
+  stereotype: src_external
+  layer: source
+
+  source_system:
+    name: EpicCare
+    type: api
+    connection: FHIR_API
+    schedule: "every 5 minutes"
+    format: fhir_json
+
+  fhir_mapping:
+    resources: [Patient, Encounter, Condition]
+    version: R4
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [name, dob, ssn, mrn, address, phone, email]
+      minimum_necessary: true
+
+  attributes:
+    # Patient Identifiers
+    - name: patient_id
+      data_type: string
+      length: 36
+      description: Internal patient identifier (UUID)
+      business_key: true
+      fhir_path: Patient.id
+
+    - name: mrn
+      data_type: string
+      length: 20
+      description: Medical Record Number
+      tags: [phi, hipaa_covered]
+      fhir_path: Patient.identifier[mrn]
+
+    - name: ssn
+      data_type: string
+      length: 11
+      nullable: true
+      description: Social Security Number (encrypted)
+      tags: [phi, pii, hipaa_covered]
+      security:
+        encrypted: true
+        mask_pattern: "XXX-XX-{last4}"
+      fhir_path: Patient.identifier[ssn]
+
+    # Demographics
+    - name: given_name
+      data_type: string
+      length: 50
+      description: Patient first/given name
+      tags: [phi, pii]
+      fhir_path: Patient.name.given
+
+    - name: family_name
+      data_type: string
+      length: 50
+      description: Patient family/last name
+      tags: [phi, pii]
+      fhir_path: Patient.name.family
+
+    - name: birth_date
+      data_type: date
+      description: Date of birth
+      tags: [phi, pii]
+      fhir_path: Patient.birthDate
+
+    - name: gender
+      data_type: string
+      length: 10
+      description: Administrative gender (male, female, other, unknown)
+      fhir_path: Patient.gender
+
+    - name: deceased_flag
+      data_type: boolean
+      default: false
+      description: Deceased indicator
+      fhir_path: Patient.deceasedBoolean
+
+    - name: deceased_date
+      data_type: date
+      nullable: true
+      description: Date of death if applicable
+      fhir_path: Patient.deceasedDateTime
+
+    # Contact Information
+    - name: address_line
+      data_type: string
+      length: 200
+      nullable: true
+      description: Street address
+      tags: [phi, pii]
+      fhir_path: Patient.address.line
+
+    - name: city
+      data_type: string
+      length: 50
+      nullable: true
+      description: City
+      tags: [phi]
+      fhir_path: Patient.address.city
+
+    - name: state
+      data_type: string
+      length: 2
+      nullable: true
+      description: State code
+      fhir_path: Patient.address.state
+
+    - name: postal_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: ZIP/Postal code
+      tags: [phi]
+      fhir_path: Patient.address.postalCode
+
+    - name: phone
+      data_type: string
+      length: 20
+      nullable: true
+      description: Phone number
+      tags: [phi, pii]
+      fhir_path: Patient.telecom[phone]
+
+    - name: email
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email address
+      tags: [phi, pii]
+      fhir_path: Patient.telecom[email]
+
+    # Clinical Context
+    - name: primary_care_provider_id
+      data_type: string
+      length: 36
+      nullable: true
+      description: Primary care provider reference
+      fhir_path: Patient.generalPractitioner
+
+    - name: managing_organization_id
+      data_type: string
+      length: 36
+      nullable: true
+      description: Managing organization reference
+      fhir_path: Patient.managingOrganization
+
+    # Metadata
+    - name: last_updated
+      data_type: timestamp
+      description: FHIR resource last updated timestamp
+      fhir_path: Patient.meta.lastUpdated
+
+    - name: version_id
+      data_type: string
+      length: 20
+      description: FHIR resource version
+      fhir_path: Patient.meta.versionId
+
+    - name: extract_ts
+      data_type: timestamp
+      description: ETL extraction timestamp
+
+  quality_rules:
+    - rule_id: ehr_001
+      name: Valid MRN Format
+      expression: "mrn ~ '^[A-Z]{2}[0-9]{8}$'"
+      severity: warning
+
+    - rule_id: ehr_002
+      name: Valid Birth Date
+      expression: "birth_date <= CURRENT_DATE AND birth_date >= '1900-01-01'"
+      severity: error
+
+    - rule_id: ehr_003
+      name: Deceased Consistency
+      expression: "deceased_flag = FALSE OR deceased_date IS NOT NULL"
+      severity: warning

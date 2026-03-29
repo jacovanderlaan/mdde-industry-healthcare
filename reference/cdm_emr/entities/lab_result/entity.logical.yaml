@@ -1,0 +1,99 @@
+entity:
+  name: lab_result
+  comment: |
+    Laboratory test result entity for diagnostic
+    testing and clinical measurements.
+attributes:
+  - name: lab_result_key
+    data_type: INT
+    mandatory: true
+    primary_key: true
+    comment: Surrogate key
+  - name: lab_result_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Lab result ID
+  - name: order_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Lab order ID
+  - name: patient_id
+    data_type: VA50(50)
+    mandatory: true
+    comment: Patient ID
+  - name: encounter_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Related encounter ID
+  - name: test_code
+    data_type: VA20(20)
+    mandatory: true
+    comment: LOINC test code
+  - name: test_name
+    data_type: VA200(200)
+    mandatory: true
+    comment: Test name
+  - name: test_category
+    data_type: VA50(50)
+    mandatory: false
+    comment: Category (Chemistry, Hematology, Microbiology)
+  - name: specimen_type
+    data_type: VA50(50)
+    mandatory: false
+    comment: Specimen type (Blood, Urine, etc.)
+  - name: collection_datetime
+    data_type: TS
+    mandatory: false
+    comment: Specimen collection time
+  - name: result_datetime
+    data_type: TS
+    mandatory: true
+    comment: Result datetime
+  - name: result_value
+    data_type: VA200(200)
+    mandatory: false
+    comment: Result value (text)
+  - name: result_numeric
+    data_type: DEC(15,4)
+    mandatory: false
+    comment: Numeric result value
+  - name: result_unit
+    data_type: VA30(30)
+    mandatory: false
+    comment: Result unit of measure
+  - name: reference_range_low
+    data_type: DEC(15,4)
+    mandatory: false
+    comment: Reference range low
+  - name: reference_range_high
+    data_type: DEC(15,4)
+    mandatory: false
+    comment: Reference range high
+  - name: reference_range_text
+    data_type: VA100(100)
+    mandatory: false
+    comment: Reference range text
+  - name: abnormal_flag
+    data_type: VA10(10)
+    mandatory: false
+    comment: Abnormal flag (H, L, HH, LL, A, N)
+  - name: result_status
+    data_type: VA20(20)
+    mandatory: true
+    comment: Status (Preliminary, Final, Corrected)
+  - name: ordering_provider_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Ordering provider
+  - name: performing_lab_id
+    data_type: VA50(50)
+    mandatory: false
+    comment: Performing laboratory
+  - name: interpretation
+    data_type: VA1000(1000)
+    mandatory: false
+    comment: Clinical interpretation
+  - name: is_critical
+    data_type: B
+    mandatory: false
+    comment: Critical result flag

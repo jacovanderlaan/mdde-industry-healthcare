@@ -1,0 +1,101 @@
+# FHIR R4: Organization Resource
+# https://hl7.org/fhir/R4/organization.html
+
+entity:
+  entity_id: fhir_organization
+  name: Organization
+  description: |
+    A formally or informally recognized grouping of people or organizations
+    formed for the purpose of achieving some form of collective action.
+
+    Includes companies, institutions, departments, community groups,
+    healthcare practice groups, payer/insurer, etc.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Organization
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_npi
+      data_type: string
+      length: 10
+      description: Organization NPI
+
+    - name: identifier_tax_id
+      data_type: string
+      length: 20
+      description: Tax identification number
+
+    - name: active
+      data_type: boolean
+
+    - name: type_code
+      data_type: string
+      length: 50
+      description: Organization type (prov, dept, team, govt, ins, etc.)
+
+    - name: name
+      data_type: string
+      length: 255
+      not_null: true
+
+    - name: alias
+      data_type: string
+      length: 255
+      description: Alternate names
+
+    - name: telecom_phone
+      data_type: string
+      length: 30
+
+    - name: telecom_fax
+      data_type: string
+      length: 30
+
+    - name: telecom_email
+      data_type: string
+      length: 255
+
+    - name: address_line
+      data_type: string
+      length: 255
+
+    - name: address_city
+      data_type: string
+      length: 100
+
+    - name: address_state
+      data_type: string
+      length: 50
+
+    - name: address_postal_code
+      data_type: string
+      length: 20
+
+    - name: address_country
+      data_type: string
+      length: 50
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+      description: Parent organization reference
+
+  relationships:
+    - from: part_of_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+      description: Parent organization (hierarchy)

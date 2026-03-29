@@ -1,0 +1,76 @@
+entity:
+  entity_id: link_patient_encounter
+  name: Patient-Encounter Link
+  description: |
+    Data Vault link connecting patients to their encounters.
+    Represents the fundamental patient-visit relationship.
+  stereotype: dv_link
+  layer: integration
+
+  data_vault:
+    link_type: standard
+    linked_hubs:
+      - hub_patient
+      - hub_encounter
+
+  fhir_mapping:
+    resource: Encounter
+    version: R4
+    reference_element: subject
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_hash_key]
+
+  lineage:
+    sources:
+      - entity_id: stg_encounters
+        mapping_type: derive
+
+  attributes:
+    - name: patient_encounter_hash_key
+      data_type: string
+      length: 64
+      description: Link hash key
+      primary_key: true
+      derived:
+        expression: "MD5(CONCAT(patient_hash_key, '|', encounter_hash_key))"
+
+    - name: patient_hash_key
+      data_type: string
+      length: 64
+      description: Patient hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_patient.patient_hash_key
+
+    - name: encounter_hash_key
+      data_type: string
+      length: 64
+      description: Encounter hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_encounter.encounter_hash_key
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+      not_null: true
+
+  quality_rules:
+    - rule_id: link_pe_001
+      name: Required Patient
+      expression: "patient_hash_key IS NOT NULL"
+      severity: error
+
+    - rule_id: link_pe_002
+      name: Required Encounter
+      expression: "encounter_hash_key IS NOT NULL"
+      severity: error

@@ -1,0 +1,212 @@
+# FHIR R4: Device Resource
+# https://hl7.org/fhir/R4/device.html
+
+entity:
+  entity_id: fhir_device
+  name: Device
+  description: |
+    A type of manufactured item that is used in the provision of
+    healthcare without being substantially changed through that activity.
+    Medical devices, lab equipment, implants, etc.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Device
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_udi
+      data_type: string
+      length: 100
+      description: Unique Device Identifier
+
+    - name: identifier_serial
+      data_type: string
+      length: 50
+
+    - name: definition_id
+      data_type: string
+      length: 64
+      description: Reference to DeviceDefinition
+
+    - name: udi_carrier_device_identifier
+      data_type: string
+      length: 100
+
+    - name: udi_carrier_issuer
+      data_type: string
+      length: 100
+
+    - name: udi_carrier_jurisdiction
+      data_type: string
+      length: 100
+
+    - name: udi_carrier_carrier_aidc
+      data_type: string
+      length: 500
+
+    - name: udi_carrier_carrier_hrf
+      data_type: string
+      length: 500
+
+    - name: udi_carrier_entry_type
+      data_type: string
+      length: 20
+      description: barcode | rfid | manual | card | self-reported | unknown
+
+    - name: status
+      data_type: string
+      length: 20
+      description: active | inactive | entered-in-error | unknown
+
+    - name: status_reason_code
+      data_type: string
+      length: 50
+
+    - name: distinct_identifier
+      data_type: string
+      length: 100
+
+    - name: manufacturer
+      data_type: string
+      length: 255
+
+    - name: manufacture_date
+      data_type: timestamp
+
+    - name: expiration_date
+      data_type: timestamp
+
+    - name: lot_number
+      data_type: string
+      length: 50
+
+    - name: serial_number
+      data_type: string
+      length: 100
+
+    - name: device_name_name
+      data_type: string
+      length: 255
+
+    - name: device_name_type
+      data_type: string
+      length: 50
+      description: udi-label-name | user-friendly-name | patient-reported-name | manufacturer-name | model-name | other
+
+    - name: model_number
+      data_type: string
+      length: 100
+
+    - name: part_number
+      data_type: string
+      length: 100
+
+    - name: type_code
+      data_type: string
+      length: 50
+
+    - name: type_display
+      data_type: string
+      length: 255
+
+    - name: specialization_system_type_code
+      data_type: string
+      length: 50
+
+    - name: specialization_version
+      data_type: string
+      length: 50
+
+    - name: version_type_code
+      data_type: string
+      length: 50
+
+    - name: version_component_identifier
+      data_type: string
+      length: 100
+
+    - name: version_value
+      data_type: string
+      length: 100
+
+    - name: property_type_code
+      data_type: string
+      length: 50
+
+    - name: property_value_quantity_value
+      data_type: decimal
+      precision: 18
+      scale: 6
+
+    - name: property_value_code
+      data_type: string
+      length: 50
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      description: Patient to whom device is affixed
+
+    - name: owner_id
+      data_type: string
+      length: 64
+
+    - name: contact_phone
+      data_type: string
+      length: 30
+
+    - name: contact_email
+      data_type: string
+      length: 255
+
+    - name: location_id
+      data_type: string
+      length: 64
+
+    - name: url
+      data_type: string
+      length: 255
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: safety_code
+      data_type: string
+      length: 50
+
+    - name: parent_device_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: owner_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: parent_device_id
+      to: fhir_device.id
+      type: fk
+      cardinality: "N:1"

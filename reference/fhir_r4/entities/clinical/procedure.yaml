@@ -1,0 +1,216 @@
+# FHIR R4: Procedure Resource
+# https://hl7.org/fhir/R4/procedure.html
+
+entity:
+  entity_id: fhir_procedure
+  name: Procedure
+  description: |
+    An action that is or was performed on or for a patient.
+    This can be a physical intervention like surgery, or diagnostic
+    procedure, or counseling, education, etc.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Procedure
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: instantiates_canonical
+      data_type: string
+      length: 255
+      description: Reference to protocol or definition
+
+    - name: instantiates_uri
+      data_type: string
+      length: 255
+
+    - name: based_on_service_request_id
+      data_type: string
+      length: 64
+
+    - name: part_of_procedure_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: preparation | in-progress | not-done | on-hold | stopped | completed | entered-in-error | unknown
+
+    - name: status_reason_code
+      data_type: string
+      length: 50
+
+    - name: category_code
+      data_type: string
+      length: 50
+
+    - name: code_system
+      data_type: string
+      length: 100
+      description: Code system (CPT, ICD-10-PCS, SNOMED)
+
+    - name: code_code
+      data_type: string
+      length: 20
+      not_null: true
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: performed_date_time
+      data_type: timestamp
+
+    - name: performed_period_start
+      data_type: timestamp
+
+    - name: performed_period_end
+      data_type: timestamp
+
+    - name: performed_string
+      data_type: string
+      length: 255
+
+    - name: performed_age_value
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: performed_range_low
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: performed_range_high
+      data_type: decimal
+      precision: 5
+      scale: 2
+
+    - name: recorder_id
+      data_type: string
+      length: 64
+
+    - name: asserter_id
+      data_type: string
+      length: 64
+
+    - name: performer_actor_id
+      data_type: string
+      length: 64
+      description: Primary performer
+
+    - name: performer_function_code
+      data_type: string
+      length: 50
+
+    - name: performer_on_behalf_of_id
+      data_type: string
+      length: 64
+
+    - name: location_id
+      data_type: string
+      length: 64
+
+    - name: reason_code
+      data_type: string
+      length: 50
+
+    - name: reason_reference_condition_id
+      data_type: string
+      length: 64
+
+    - name: body_site_code
+      data_type: string
+      length: 50
+
+    - name: body_site_display
+      data_type: string
+      length: 255
+
+    - name: outcome_code
+      data_type: string
+      length: 50
+      description: Outcome of procedure
+
+    - name: report_diagnostic_report_id
+      data_type: string
+      length: 64
+
+    - name: complication_code
+      data_type: string
+      length: 50
+
+    - name: complication_detail_condition_id
+      data_type: string
+      length: 64
+
+    - name: follow_up_code
+      data_type: string
+      length: 50
+
+    - name: note
+      data_type: string
+      length: 2000
+
+    - name: focal_device_action_code
+      data_type: string
+      length: 50
+
+    - name: focal_device_manipulated_id
+      data_type: string
+      length: 64
+
+    - name: used_reference_device_id
+      data_type: string
+      length: 64
+
+    - name: used_code
+      data_type: string
+      length: 50
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: part_of_procedure_id
+      to: fhir_procedure.id
+      type: fk
+      cardinality: "N:1"

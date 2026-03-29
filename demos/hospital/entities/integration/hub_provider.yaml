@@ -1,0 +1,64 @@
+entity:
+  entity_id: hub_provider
+  name: Provider Hub
+  description: |
+    Data Vault hub for healthcare providers (physicians, nurses, facilities).
+    Conforms to FHIR Practitioner and Organization resources.
+  stereotype: dv_hub
+  layer: integration
+
+  data_vault:
+    hub_type: standard
+    business_keys: [provider_npi]
+
+  fhir_mapping:
+    resources:
+      - Practitioner
+      - Organization
+    version: R4
+
+  lineage:
+    sources:
+      - entity_id: src_ehr_system
+        mapping_type: derive
+      - entity_id: src_hl7_messages
+        mapping_type: derive
+
+  attributes:
+    - name: provider_hash_key
+      data_type: string
+      length: 64
+      description: Hash key derived from NPI
+      primary_key: true
+      derived:
+        expression: "MD5(provider_npi)"
+
+    - name: provider_npi
+      data_type: string
+      length: 10
+      description: National Provider Identifier (NPI)
+      business_key: true
+      not_null: true
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+      not_null: true
+
+  quality_rules:
+    - rule_id: hub_prov_001
+      name: Valid NPI Format
+      expression: "LENGTH(provider_npi) = 10 AND provider_npi ~ '^[0-9]+$'"
+      severity: error
+
+    - rule_id: hub_prov_002
+      name: NPI Luhn Check
+      expression: "provider_npi IS NOT NULL"
+      severity: warning
+      description: NPI should pass Luhn algorithm validation

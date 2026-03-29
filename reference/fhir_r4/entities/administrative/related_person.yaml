@@ -1,0 +1,121 @@
+# FHIR R4: RelatedPerson Resource
+# https://hl7.org/fhir/R4/relatedperson.html
+
+entity:
+  entity_id: fhir_related_person
+  name: RelatedPerson
+  description: |
+    Information about a person that is involved in the care for a patient,
+    but who is not the target of healthcare, nor has a formal responsibility
+    in the care process. Typically family, friends, caregivers.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: RelatedPerson
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: active
+      data_type: boolean
+
+    - name: patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: relationship_code
+      data_type: string
+      length: 50
+      description: Nature of relationship
+
+    - name: relationship_display
+      data_type: string
+      length: 100
+
+    - name: name_family
+      data_type: string
+      length: 100
+
+    - name: name_given
+      data_type: string
+      length: 100
+
+    - name: name_prefix
+      data_type: string
+      length: 20
+
+    - name: name_suffix
+      data_type: string
+      length: 20
+
+    - name: telecom_phone
+      data_type: string
+      length: 30
+
+    - name: telecom_email
+      data_type: string
+      length: 255
+
+    - name: gender
+      data_type: string
+      length: 20
+
+    - name: birth_date
+      data_type: date
+
+    - name: address_line
+      data_type: string
+      length: 255
+
+    - name: address_city
+      data_type: string
+      length: 100
+
+    - name: address_state
+      data_type: string
+      length: 50
+
+    - name: address_postal_code
+      data_type: string
+      length: 20
+
+    - name: address_country
+      data_type: string
+      length: 50
+
+    - name: photo_url
+      data_type: string
+      length: 255
+
+    - name: period_start
+      data_type: date
+
+    - name: period_end
+      data_type: date
+
+    - name: communication_language
+      data_type: string
+      length: 10
+
+    - name: communication_preferred
+      data_type: boolean
+
+  relationships:
+    - from: patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"

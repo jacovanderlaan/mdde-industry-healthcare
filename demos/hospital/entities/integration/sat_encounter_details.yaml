@@ -1,0 +1,214 @@
+entity:
+  entity_id: sat_encounter_details
+  name: Encounter Details Satellite
+  description: |
+    Data Vault satellite containing encounter clinical and administrative details.
+    Maps to FHIR Encounter elements including class, type, and period.
+  stereotype: dv_satellite
+  layer: integration
+
+  data_vault:
+    satellite_type: standard
+    parent_hub: hub_encounter
+    hash_diff_columns:
+      - encounter_class
+      - encounter_type_code
+      - status
+      - admit_datetime
+      - discharge_datetime
+      - discharge_disposition
+      - facility_id
+      - department_id
+
+  fhir_mapping:
+    resource: Encounter
+    version: R4
+    elements:
+      - class
+      - type
+      - status
+      - period
+      - hospitalization
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_hash_key]
+
+  lineage:
+    sources:
+      - entity_id: stg_encounters
+        mapping_type: derive
+
+  attributes:
+    - name: encounter_hash_key
+      data_type: string
+      length: 64
+      description: Parent hub hash key
+      not_null: true
+      foreign_key:
+        references: hub_encounter.encounter_hash_key
+
+    - name: load_ts
+      data_type: timestamp
+      description: Load timestamp
+      not_null: true
+
+    - name: load_end_ts
+      data_type: timestamp
+      nullable: true
+      description: Record end timestamp (null = current)
+
+    - name: hash_diff
+      data_type: string
+      length: 64
+      description: Hash of tracked columns for change detection
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+
+    # Classification
+    - name: encounter_class
+      data_type: string
+      length: 20
+      description: Encounter class (inpatient, outpatient, emergency, etc.)
+
+    - name: encounter_type_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Encounter type code
+
+    - name: encounter_type_desc
+      data_type: string
+      length: 100
+      nullable: true
+      description: Encounter type description
+
+    - name: status
+      data_type: string
+      length: 20
+      description: Encounter status (FHIR ValueSet)
+
+    - name: priority
+      data_type: string
+      length: 20
+      nullable: true
+      description: Encounter priority
+
+    # Admission
+    - name: admission_type
+      data_type: string
+      length: 20
+      nullable: true
+      description: Admission type code
+
+    - name: admission_source
+      data_type: string
+      length: 50
+      nullable: true
+      description: Admission source
+
+    - name: admit_datetime
+      data_type: timestamp
+      description: Admission/arrival timestamp
+
+    # Discharge
+    - name: discharge_datetime
+      data_type: timestamp
+      nullable: true
+      description: Discharge timestamp
+
+    - name: discharge_disposition
+      data_type: string
+      length: 50
+      nullable: true
+      description: Discharge disposition code
+
+    - name: discharge_location
+      data_type: string
+      length: 100
+      nullable: true
+      description: Discharge location/facility
+
+    # Duration
+    - name: length_of_stay_days
+      data_type: integer
+      nullable: true
+      description: Length of stay in days
+      derived:
+        expression: "DATEDIFF(day, admit_datetime, COALESCE(discharge_datetime, CURRENT_TIMESTAMP))"
+
+    # Location
+    - name: facility_id
+      data_type: string
+      length: 36
+      nullable: true
+      description: Facility identifier
+
+    - name: facility_name
+      data_type: string
+      length: 100
+      nullable: true
+      description: Facility name
+
+    - name: department_id
+      data_type: string
+      length: 20
+      nullable: true
+      description: Department identifier
+
+    - name: department_name
+      data_type: string
+      length: 100
+      nullable: true
+      description: Department name
+
+    - name: room
+      data_type: string
+      length: 20
+      nullable: true
+      description: Room number
+
+    - name: bed
+      data_type: string
+      length: 20
+      nullable: true
+      description: Bed identifier
+
+    - name: service_line
+      data_type: string
+      length: 50
+      nullable: true
+      description: Service line (Cardiology, Oncology, etc.)
+
+    # Financial
+    - name: financial_class
+      data_type: string
+      length: 20
+      nullable: true
+      description: Financial class code
+
+    - name: insurance_plan_id
+      data_type: string
+      length: 30
+      nullable: true
+      description: Primary insurance plan ID
+
+  quality_rules:
+    - rule_id: sat_enc_001
+      name: Valid Encounter Class
+      expression: "encounter_class IN ('inpatient', 'outpatient', 'ambulatory', 'emergency', 'home', 'field', 'virtual', 'observation')"
+      severity: error
+
+    - rule_id: sat_enc_002
+      name: Valid Status
+      expression: "status IN ('planned', 'arrived', 'triaged', 'in-progress', 'onleave', 'finished', 'cancelled', 'entered-in-error', 'unknown')"
+      severity: error
+
+    - rule_id: sat_enc_003
+      name: Discharge After Admit
+      expression: "discharge_datetime IS NULL OR discharge_datetime >= admit_datetime"
+      severity: error

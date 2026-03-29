@@ -1,0 +1,279 @@
+entity:
+  entity_id: sat_patient_demographics
+  name: Satellite Patient Demographics
+  description: |
+    Data Vault 2.0 Satellite containing patient demographic
+    information. Maps to FHIR Patient resource demographics.
+    Subject to HIPAA PHI protections.
+  stereotype: dv_satellite
+  layer: integration
+
+  data_vault:
+    satellite_type: standard
+    parent_hub: hub_patient
+    driving_key: hub_patient_hk
+
+  fhir_mapping:
+    resource: Patient
+    elements: [name, birthDate, gender, address, telecom]
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [given_name, family_name, birth_date, ssn_encrypted, address, phone, email]
+      safe_harbor_elements: [age_at_extract, zip_prefix]
+      minimum_necessary: true
+
+  tags: [phi, pii, hipaa_covered]
+
+  lineage:
+    sources:
+      - entity_id: src_ehr_system
+        mapping_type: derive
+
+  attributes:
+    - name: hub_patient_hk
+      data_type: string
+      length: 64
+      description: Hash key to parent hub
+      primary_key: true
+      foreign_key:
+        references: hub_patient.hub_patient_hk
+
+    - name: load_dts
+      data_type: timestamp
+      description: Load date timestamp
+      primary_key: true
+
+    - name: load_end_dts
+      data_type: timestamp
+      nullable: true
+      description: End date timestamp (null for current)
+
+    - name: hash_diff
+      data_type: string
+      length: 64
+      description: Hash of descriptive columns for change detection
+
+    # Name
+    - name: given_name
+      data_type: string
+      length: 50
+      description: Patient first/given name
+      tags: [phi, pii]
+      security:
+        encrypted: true
+        encryption_key: PHI_KEY
+      fhir_path: Patient.name.given
+
+    - name: family_name
+      data_type: string
+      length: 50
+      description: Patient family/last name
+      tags: [phi, pii]
+      security:
+        encrypted: true
+        encryption_key: PHI_KEY
+      fhir_path: Patient.name.family
+
+    - name: middle_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: Patient middle name
+      tags: [phi, pii]
+
+    - name: name_suffix
+      data_type: string
+      length: 10
+      nullable: true
+      description: Name suffix (Jr, Sr, III)
+
+    - name: preferred_name
+      data_type: string
+      length: 50
+      nullable: true
+      description: Preferred/nickname
+      tags: [phi]
+
+    # Demographics
+    - name: birth_date
+      data_type: date
+      description: Date of birth
+      tags: [phi]
+      fhir_path: Patient.birthDate
+
+    - name: age_at_extract
+      data_type: integer
+      description: Age at extraction (safe harbor compliant)
+      derived:
+        expression: "DATEDIFF(year, birth_date, CURRENT_DATE)"
+
+    - name: gender
+      data_type: string
+      length: 10
+      description: Administrative gender
+      fhir_path: Patient.gender
+
+    - name: birth_sex
+      data_type: string
+      length: 10
+      nullable: true
+      description: Sex assigned at birth
+
+    - name: race
+      data_type: string
+      length: 50
+      nullable: true
+      description: Race (US Core Race)
+
+    - name: ethnicity
+      data_type: string
+      length: 50
+      nullable: true
+      description: Ethnicity (US Core Ethnicity)
+
+    - name: language
+      data_type: string
+      length: 10
+      nullable: true
+      description: Preferred language (ISO 639-1)
+
+    - name: marital_status
+      data_type: string
+      length: 20
+      nullable: true
+      description: Marital status code
+
+    # SSN (heavily protected)
+    - name: ssn_encrypted
+      data_type: string
+      length: 256
+      nullable: true
+      description: SSN (AES-256 encrypted)
+      tags: [phi, pii, hipaa_covered]
+      security:
+        encrypted: true
+        encryption_algorithm: AES-256-GCM
+        encryption_key: SSN_KEY
+
+    - name: ssn_last_four
+      data_type: string
+      length: 4
+      nullable: true
+      description: Last 4 digits of SSN
+      tags: [phi]
+
+    # Address (PHI)
+    - name: address_line_1
+      data_type: string
+      length: 100
+      nullable: true
+      description: Street address line 1
+      tags: [phi, pii]
+      security:
+        encrypted: true
+        encryption_key: PHI_KEY
+
+    - name: address_line_2
+      data_type: string
+      length: 100
+      nullable: true
+      description: Street address line 2
+      tags: [phi]
+
+    - name: city
+      data_type: string
+      length: 50
+      nullable: true
+      description: City
+      tags: [phi]
+
+    - name: state
+      data_type: string
+      length: 2
+      nullable: true
+      description: State code
+
+    - name: postal_code
+      data_type: string
+      length: 10
+      nullable: true
+      description: Full postal code
+      tags: [phi]
+
+    - name: zip_prefix
+      data_type: string
+      length: 3
+      nullable: true
+      description: ZIP prefix (safe harbor compliant for pop > 20k)
+      derived:
+        expression: "LEFT(postal_code, 3)"
+
+    - name: country
+      data_type: string
+      length: 2
+      default: "US"
+      description: Country code
+
+    # Contact
+    - name: phone_home
+      data_type: string
+      length: 20
+      nullable: true
+      description: Home phone
+      tags: [phi, pii]
+
+    - name: phone_mobile
+      data_type: string
+      length: 20
+      nullable: true
+      description: Mobile phone
+      tags: [phi, pii]
+
+    - name: email
+      data_type: string
+      length: 100
+      nullable: true
+      description: Email address
+      tags: [phi, pii]
+      security:
+        encrypted: true
+        encryption_key: PHI_KEY
+
+    # Status
+    - name: deceased_flag
+      data_type: boolean
+      default: false
+      description: Deceased indicator
+
+    - name: deceased_date
+      data_type: date
+      nullable: true
+      description: Date of death
+
+    - name: active_flag
+      data_type: boolean
+      default: true
+      description: Active patient record
+
+    - name: record_source
+      data_type: string
+      length: 50
+      description: Source system identifier
+
+  quality_rules:
+    - rule_id: sat_demo_001
+      name: Valid Birth Date
+      expression: "birth_date <= CURRENT_DATE"
+      severity: error
+
+    - rule_id: sat_demo_002
+      name: Valid Gender Code
+      expression: "gender IN ('male', 'female', 'other', 'unknown')"
+      severity: error
+
+    - rule_id: sat_demo_003
+      name: Age Range Check
+      expression: "age_at_extract >= 0 AND age_at_extract <= 125"
+      severity: warning

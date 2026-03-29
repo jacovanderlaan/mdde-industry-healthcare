@@ -1,0 +1,90 @@
+# FHIR R4: Schedule Resource
+# https://hl7.org/fhir/R4/schedule.html
+
+entity:
+  entity_id: fhir_schedule
+  name: Schedule
+  description: |
+    A container for slots of time that may be available for booking appointments.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Schedule
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: active
+      data_type: boolean
+
+    - name: service_category_code
+      data_type: string
+      length: 50
+
+    - name: service_type_code
+      data_type: string
+      length: 50
+
+    - name: specialty_code
+      data_type: string
+      length: 50
+
+    - name: actor_practitioner_id
+      data_type: string
+      length: 64
+
+    - name: actor_location_id
+      data_type: string
+      length: 64
+
+    - name: actor_healthcare_service_id
+      data_type: string
+      length: 64
+
+    - name: actor_device_id
+      data_type: string
+      length: 64
+
+    - name: planning_horizon_start
+      data_type: timestamp
+
+    - name: planning_horizon_end
+      data_type: timestamp
+
+    - name: comment
+      data_type: string
+      length: 1000
+
+  relationships:
+    - from: actor_practitioner_id
+      to: fhir_practitioner.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: actor_location_id
+      to: fhir_location.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: actor_healthcare_service_id
+      to: fhir_healthcare_service.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: actor_device_id
+      to: fhir_device.id
+      type: fk
+      cardinality: "N:1"

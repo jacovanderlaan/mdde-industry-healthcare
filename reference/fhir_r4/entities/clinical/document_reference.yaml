@@ -1,0 +1,179 @@
+# FHIR R4: DocumentReference Resource
+# https://hl7.org/fhir/R4/documentreference.html
+
+entity:
+  entity_id: fhir_document_reference
+  name: DocumentReference
+  description: |
+    A reference to a document of any kind for any purpose.
+    Provides metadata about the document so that the document
+    can be discovered and managed.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: DocumentReference
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: master_identifier
+      data_type: string
+      length: 100
+      description: Master Version Specific Identifier
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: current | superseded | entered-in-error
+
+    - name: doc_status
+      data_type: string
+      length: 20
+      description: preliminary | final | amended | entered-in-error
+
+    - name: type_code
+      data_type: string
+      length: 50
+
+    - name: type_display
+      data_type: string
+      length: 255
+
+    - name: category_code
+      data_type: string
+      length: 50
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+
+    - name: date
+      data_type: timestamp
+
+    - name: author_practitioner_id
+      data_type: string
+      length: 64
+
+    - name: author_organization_id
+      data_type: string
+      length: 64
+
+    - name: authenticator_id
+      data_type: string
+      length: 64
+
+    - name: custodian_id
+      data_type: string
+      length: 64
+
+    - name: relates_to_code
+      data_type: string
+      length: 20
+      description: replaces | transforms | signs | appends
+
+    - name: relates_to_target_id
+      data_type: string
+      length: 64
+
+    - name: description
+      data_type: string
+      length: 2000
+
+    - name: security_label_code
+      data_type: string
+      length: 50
+
+    - name: content_attachment_content_type
+      data_type: string
+      length: 100
+
+    - name: content_attachment_language
+      data_type: string
+      length: 10
+
+    - name: content_attachment_data
+      data_type: string
+      length: 10000
+      description: Base64 encoded data
+
+    - name: content_attachment_url
+      data_type: string
+      length: 255
+
+    - name: content_attachment_size
+      data_type: integer
+
+    - name: content_attachment_hash
+      data_type: string
+      length: 64
+
+    - name: content_attachment_title
+      data_type: string
+      length: 255
+
+    - name: content_attachment_creation
+      data_type: timestamp
+
+    - name: content_format_code
+      data_type: string
+      length: 50
+
+    - name: context_encounter_id
+      data_type: string
+      length: 64
+
+    - name: context_event_code
+      data_type: string
+      length: 50
+
+    - name: context_period_start
+      data_type: timestamp
+
+    - name: context_period_end
+      data_type: timestamp
+
+    - name: context_facility_type_code
+      data_type: string
+      length: 50
+
+    - name: context_practice_setting_code
+      data_type: string
+      length: 50
+
+    - name: context_source_patient_info_id
+      data_type: string
+      length: 64
+
+    - name: context_related_id
+      data_type: string
+      length: 64
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: context_encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: custodian_id
+      to: fhir_organization.id
+      type: fk
+      cardinality: "N:1"

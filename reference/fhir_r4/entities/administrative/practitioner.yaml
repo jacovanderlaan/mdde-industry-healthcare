@@ -1,0 +1,115 @@
+# FHIR R4: Practitioner Resource
+# https://hl7.org/fhir/R4/practitioner.html
+
+entity:
+  entity_id: fhir_practitioner
+  name: Practitioner
+  description: |
+    A person with a formal responsibility in the provisioning of
+    healthcare or related services.
+
+    Covers physicians, nurses, pharmacists, technicians, and other
+    healthcare professionals.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Practitioner
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_npi
+      data_type: string
+      length: 10
+      description: National Provider Identifier
+
+    - name: identifier_dea
+      data_type: string
+      length: 15
+      description: DEA registration number
+
+    - name: active
+      data_type: boolean
+
+    - name: name_family
+      data_type: string
+      length: 100
+      not_null: true
+
+    - name: name_given
+      data_type: string
+      length: 100
+
+    - name: name_prefix
+      data_type: string
+      length: 20
+
+    - name: name_suffix
+      data_type: string
+      length: 20
+
+    - name: gender
+      data_type: string
+      length: 20
+
+    - name: birth_date
+      data_type: date
+      is_pii: true
+
+    - name: telecom_phone
+      data_type: string
+      length: 30
+
+    - name: telecom_email
+      data_type: string
+      length: 255
+
+    - name: address_line
+      data_type: string
+      length: 255
+
+    - name: address_city
+      data_type: string
+      length: 100
+
+    - name: address_state
+      data_type: string
+      length: 50
+
+    - name: address_postal_code
+      data_type: string
+      length: 20
+
+    - name: address_country
+      data_type: string
+      length: 50
+
+    - name: qualification_code
+      data_type: string
+      length: 50
+      description: Qualification code (MD, RN, etc.)
+
+    - name: qualification_issuer
+      data_type: string
+      length: 255
+      description: Organization that issued qualification
+
+    - name: qualification_period_start
+      data_type: date
+
+    - name: qualification_period_end
+      data_type: date
+
+    - name: communication_language
+      data_type: string
+      length: 10

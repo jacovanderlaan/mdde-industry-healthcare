@@ -1,0 +1,155 @@
+# FHIR R4: DiagnosticReport Resource
+# https://hl7.org/fhir/R4/diagnosticreport.html
+
+entity:
+  entity_id: fhir_diagnostic_report
+  name: DiagnosticReport
+  description: |
+    The findings and interpretation of diagnostic tests performed on
+    patients, groups of patients, devices, and locations, and/or
+    specimens derived from these.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: DiagnosticReport
+    maturity_level: 5
+    normative: true
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_accession_number
+      data_type: string
+      length: 50
+
+    - name: identifier_filler_order
+      data_type: string
+      length: 50
+
+    - name: based_on_service_request_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: registered | partial | preliminary | final | amended | corrected | appended | cancelled | entered-in-error | unknown
+
+    - name: category_code
+      data_type: string
+      length: 50
+      description: LAB | RAD | PATH | etc.
+
+    - name: code_system
+      data_type: string
+      length: 100
+
+    - name: code_code
+      data_type: string
+      length: 50
+      not_null: true
+
+    - name: code_display
+      data_type: string
+      length: 255
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: effective_date_time
+      data_type: timestamp
+
+    - name: effective_period_start
+      data_type: timestamp
+
+    - name: effective_period_end
+      data_type: timestamp
+
+    - name: issued
+      data_type: timestamp
+      not_null: true
+
+    - name: performer_id
+      data_type: string
+      length: 64
+
+    - name: results_interpreter_id
+      data_type: string
+      length: 64
+
+    - name: specimen_id
+      data_type: string
+      length: 64
+
+    - name: result_observation_id
+      data_type: string
+      length: 64
+      description: References to Observation resources
+
+    - name: imaging_study_id
+      data_type: string
+      length: 64
+
+    - name: media_comment
+      data_type: string
+      length: 500
+
+    - name: media_link
+      data_type: string
+      length: 255
+
+    - name: conclusion
+      data_type: string
+      length: 2000
+
+    - name: conclusion_code
+      data_type: string
+      length: 50
+
+    - name: presented_form_content_type
+      data_type: string
+      length: 100
+
+    - name: presented_form_url
+      data_type: string
+      length: 255
+
+    - name: presented_form_size
+      data_type: integer
+
+    - name: presented_form_hash
+      data_type: string
+      length: 64
+
+    - name: presented_form_title
+      data_type: string
+      length: 255
+
+    - name: presented_form_creation
+      data_type: timestamp
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"

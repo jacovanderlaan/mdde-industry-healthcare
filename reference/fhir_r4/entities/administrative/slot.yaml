@@ -1,0 +1,76 @@
+# FHIR R4: Slot Resource
+# https://hl7.org/fhir/R4/slot.html
+
+entity:
+  entity_id: fhir_slot
+  name: Slot
+  description: |
+    A slot of time on a schedule that may be available for booking appointments.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: Slot
+    maturity_level: 4
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: service_category_code
+      data_type: string
+      length: 50
+
+    - name: service_type_code
+      data_type: string
+      length: 50
+
+    - name: specialty_code
+      data_type: string
+      length: 50
+
+    - name: appointment_type_code
+      data_type: string
+      length: 50
+
+    - name: schedule_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: busy | free | busy-unavailable | busy-tentative | entered-in-error
+
+    - name: start
+      data_type: timestamp
+      not_null: true
+
+    - name: end
+      data_type: timestamp
+      not_null: true
+
+    - name: overbooked
+      data_type: boolean
+
+    - name: comment
+      data_type: string
+      length: 1000
+
+  relationships:
+    - from: schedule_id
+      to: fhir_schedule.id
+      type: fk
+      cardinality: "N:1"

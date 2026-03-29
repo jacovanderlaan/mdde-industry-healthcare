@@ -1,0 +1,214 @@
+# FHIR R4: CarePlan Resource
+# https://hl7.org/fhir/R4/careplan.html
+
+entity:
+  entity_id: fhir_care_plan
+  name: CarePlan
+  description: |
+    Describes the intention of how one or more practitioners intend to
+    deliver care for a particular patient, group or community for a
+    period of time, possibly limited to care for a specific condition.
+  stereotype: src_external
+  layer: source
+
+  fhir_metadata:
+    resource_type: CarePlan
+    maturity_level: 3
+
+  attributes:
+    - name: id
+      data_type: string
+      length: 64
+      primary_key: true
+      not_null: true
+
+    - name: meta_last_updated
+      data_type: timestamp
+
+    - name: identifier_code
+      data_type: string
+      length: 50
+
+    - name: instantiates_canonical
+      data_type: string
+      length: 255
+
+    - name: instantiates_uri
+      data_type: string
+      length: 255
+
+    - name: based_on_id
+      data_type: string
+      length: 64
+
+    - name: replaces_id
+      data_type: string
+      length: 64
+
+    - name: part_of_id
+      data_type: string
+      length: 64
+
+    - name: status
+      data_type: string
+      length: 20
+      not_null: true
+      description: draft | active | on-hold | revoked | completed | entered-in-error | unknown
+
+    - name: intent
+      data_type: string
+      length: 20
+      not_null: true
+      description: proposal | plan | order | option
+
+    - name: category_code
+      data_type: string
+      length: 50
+
+    - name: title
+      data_type: string
+      length: 255
+
+    - name: description
+      data_type: string
+      length: 2000
+
+    - name: subject_patient_id
+      data_type: string
+      length: 64
+      not_null: true
+
+    - name: encounter_id
+      data_type: string
+      length: 64
+
+    - name: period_start
+      data_type: timestamp
+
+    - name: period_end
+      data_type: timestamp
+
+    - name: created
+      data_type: timestamp
+
+    - name: author_id
+      data_type: string
+      length: 64
+
+    - name: contributor_id
+      data_type: string
+      length: 64
+
+    - name: care_team_id
+      data_type: string
+      length: 64
+
+    - name: addresses_condition_id
+      data_type: string
+      length: 64
+
+    - name: supporting_info_id
+      data_type: string
+      length: 64
+
+    - name: goal_id
+      data_type: string
+      length: 64
+
+    - name: activity_outcome_code
+      data_type: string
+      length: 50
+
+    - name: activity_outcome_reference_id
+      data_type: string
+      length: 64
+
+    - name: activity_progress
+      data_type: string
+      length: 500
+
+    - name: activity_reference_id
+      data_type: string
+      length: 64
+
+    - name: activity_detail_kind
+      data_type: string
+      length: 50
+
+    - name: activity_detail_instantiates_canonical
+      data_type: string
+      length: 255
+
+    - name: activity_detail_code
+      data_type: string
+      length: 50
+
+    - name: activity_detail_reason_code
+      data_type: string
+      length: 50
+
+    - name: activity_detail_goal_id
+      data_type: string
+      length: 64
+
+    - name: activity_detail_status
+      data_type: string
+      length: 20
+
+    - name: activity_detail_status_reason_code
+      data_type: string
+      length: 50
+
+    - name: activity_detail_do_not_perform
+      data_type: boolean
+
+    - name: activity_detail_scheduled_timing
+      data_type: string
+      length: 500
+
+    - name: activity_detail_scheduled_period_start
+      data_type: timestamp
+
+    - name: activity_detail_scheduled_period_end
+      data_type: timestamp
+
+    - name: activity_detail_location_id
+      data_type: string
+      length: 64
+
+    - name: activity_detail_performer_id
+      data_type: string
+      length: 64
+
+    - name: activity_detail_product_code
+      data_type: string
+      length: 50
+
+    - name: activity_detail_daily_amount_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: activity_detail_quantity_value
+      data_type: decimal
+      precision: 10
+      scale: 4
+
+    - name: activity_detail_description
+      data_type: string
+      length: 1000
+
+    - name: note
+      data_type: string
+      length: 2000
+
+  relationships:
+    - from: subject_patient_id
+      to: fhir_patient.id
+      type: fk
+      cardinality: "N:1"
+
+    - from: encounter_id
+      to: fhir_encounter.id
+      type: fk
+      cardinality: "N:1"

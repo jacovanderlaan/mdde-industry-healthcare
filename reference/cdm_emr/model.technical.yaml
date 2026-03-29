@@ -1,0 +1,4 @@
+model:
+  model_id: cdm_emr
+  name: Healthcare CDM - EMR
+  parent_model_id: healthcare

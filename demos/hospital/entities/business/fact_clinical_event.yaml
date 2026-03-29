@@ -1,0 +1,308 @@
+entity:
+  entity_id: fact_clinical_event
+  name: Clinical Event Fact
+  description: |
+    Clinical events fact table capturing diagnoses, procedures,
+    lab results, and medications at the event grain.
+  stereotype: dim_fact
+  layer: business
+
+  dimensional:
+    fact_type: transaction
+    grain: clinical_event
+    measures:
+      - event_count
+      - result_value_numeric
+      - medication_quantity
+      - procedure_units
+
+  fhir_mapping:
+    resources:
+      - Condition
+      - Procedure
+      - Observation
+      - MedicationRequest
+    version: R4
+
+  compliance:
+    hipaa:
+      scope: true
+      phi_elements: [patient_sk]
+
+  tags: [phi, clinical]
+
+  lineage:
+    sources:
+      - entity_id: hub_patient
+        mapping_type: derive
+      - entity_id: hub_encounter
+        mapping_type: derive
+      - entity_id: src_lab_results
+        mapping_type: derive
+      - entity_id: src_ehr_system
+        mapping_type: derive
+
+  attributes:
+    - name: clinical_event_sk
+      data_type: bigint
+      description: Surrogate key
+      primary_key: true
+      auto_increment: true
+
+    - name: event_id
+      data_type: string
+      length: 36
+      description: Natural event identifier
+      not_null: true
+
+    # Dimension keys
+    - name: patient_sk
+      data_type: bigint
+      description: Patient dimension key
+      not_null: true
+      foreign_key:
+        references: dim_patient.patient_sk
+      tags: [phi]
+
+    - name: encounter_sk
+      data_type: bigint
+      nullable: true
+      description: Encounter fact key (if associated)
+      foreign_key:
+        references: fact_encounter.encounter_sk
+
+    - name: provider_sk
+      data_type: bigint
+      nullable: true
+      description: Provider dimension key
+      foreign_key:
+        references: dim_provider.provider_sk
+
+    - name: event_date_sk
+      data_type: integer
+      description: Event date key
+      not_null: true
+      foreign_key:
+        references: dim_date.date_sk
+
+    # Event classification
+    - name: event_type
+      data_type: string
+      length: 30
+      description: Event type (diagnosis, procedure, lab, medication, vital)
+      not_null: true
+
+    - name: event_subtype
+      data_type: string
+      length: 50
+      nullable: true
+      description: Event subtype
+
+    - name: event_datetime
+      data_type: timestamp
+      description: Event timestamp
+      not_null: true
+
+    # Code systems
+    - name: primary_code
+      data_type: string
+      length: 20
+      description: Primary code (ICD-10, CPT, LOINC, RxNorm)
+
+    - name: primary_code_system
+      data_type: string
+      length: 30
+      description: Code system identifier
+      tags: [clinical]
+
+    - name: primary_code_desc
+      data_type: string
+      length: 300
+      nullable: true
+      description: Code description
+
+    - name: secondary_code
+      data_type: string
+      length: 20
+      nullable: true
+      description: Secondary/related code
+
+    # Diagnosis specific
+    - name: diagnosis_type
+      data_type: string
+      length: 20
+      nullable: true
+      description: Diagnosis type (principal, secondary, admitting)
+
+    - name: diagnosis_poa
+      data_type: string
+      length: 1
+      nullable: true
+      description: Present on admission indicator
+
+    # Lab specific
+    - name: result_value_text
+      data_type: string
+      length: 100
+      nullable: true
+      description: Result value (text)
+      tags: [clinical]
+
+    - name: result_value_numeric
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Result value (numeric)
+      measure: true
+      tags: [clinical]
+
+    - name: result_unit
+      data_type: string
+      length: 30
+      nullable: true
+      description: Result unit of measure
+
+    - name: reference_range_low
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Reference range low
+
+    - name: reference_range_high
+      data_type: decimal
+      precision: 18
+      scale: 6
+      nullable: true
+      description: Reference range high
+
+    - name: abnormal_flag
+      data_type: string
+      length: 5
+      nullable: true
+      description: Abnormal flag (H, L, A, etc.)
+
+    - name: is_critical
+      data_type: boolean
+      default: false
+      description: Critical/panic result
+
+    # Procedure specific
+    - name: procedure_units
+      data_type: integer
+      nullable: true
+      description: Procedure units
+      measure: true
+
+    - name: procedure_modifier
+      data_type: string
+      length: 10
+      nullable: true
+      description: Procedure modifier codes
+
+    - name: body_site
+      data_type: string
+      length: 50
+      nullable: true
+      description: Body site (SNOMED)
+
+    - name: laterality
+      data_type: string
+      length: 10
+      nullable: true
+      description: Laterality (left, right, bilateral)
+
+    # Medication specific
+    - name: medication_name
+      data_type: string
+      length: 200
+      nullable: true
+      description: Medication name
+
+    - name: medication_quantity
+      data_type: decimal
+      precision: 10
+      scale: 2
+      nullable: true
+      description: Medication quantity
+      measure: true
+
+    - name: medication_dose
+      data_type: string
+      length: 50
+      nullable: true
+      description: Dose instructions
+
+    - name: medication_route
+      data_type: string
+      length: 30
+      nullable: true
+      description: Administration route
+
+    - name: medication_frequency
+      data_type: string
+      length: 50
+      nullable: true
+      description: Dosing frequency
+
+    # Status
+    - name: event_status
+      data_type: string
+      length: 20
+      description: Event status
+
+    - name: event_count
+      data_type: integer
+      default: 1
+      description: Event count (for aggregation)
+      measure: true
+      aggregation: sum
+
+    # Metadata
+    - name: source_system
+      data_type: string
+      length: 50
+      description: Source system
+
+    - name: etl_batch_id
+      data_type: bigint
+      description: ETL batch identifier
+
+    - name: load_timestamp
+      data_type: timestamp
+      description: ETL load timestamp
+
+  indexes:
+    - name: idx_fact_clin_patient
+      columns: [patient_sk, event_date_sk]
+
+    - name: idx_fact_clin_encounter
+      columns: [encounter_sk]
+
+    - name: idx_fact_clin_type
+      columns: [event_type, event_date_sk]
+
+    - name: idx_fact_clin_code
+      columns: [primary_code, primary_code_system]
+
+  partitioning:
+    strategy: range
+    column: event_date_sk
+    interval: monthly
+
+  quality_rules:
+    - rule_id: fact_clin_001
+      name: Valid Event Type
+      expression: "event_type IN ('diagnosis', 'procedure', 'lab', 'medication', 'vital', 'allergy', 'immunization')"
+      severity: error
+
+    - rule_id: fact_clin_002
+      name: Required Code
+      expression: "primary_code IS NOT NULL"
+      severity: error
+
+    - rule_id: fact_clin_003
+      name: Lab Result Consistency
+      expression: "event_type != 'lab' OR (result_value_text IS NOT NULL OR result_value_numeric IS NOT NULL)"
+      severity: warning
